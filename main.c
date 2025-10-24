@@ -149,6 +149,7 @@ void game_loop()
 
 void close_app()
 {
+    hud_destroy(hud);
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entities[i])
             entities[i]->destroy(entities[i]);
