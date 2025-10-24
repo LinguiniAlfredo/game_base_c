@@ -1,7 +1,5 @@
 #pragma once
 
-#define ARENA_SIZE (sizeof(Entity) * 1000)
-
 typedef struct {
     char* buffer;
     size_t size;
@@ -19,7 +17,15 @@ void arena_create(Arena* arena, size_t size)
 void* arena_alloc(Arena* arena, size_t size)
 {
     printf("allocating arena...\n");
-    if (arena->offset + size > arena->size) return NULL; // maybe realloc here instead
+    if (arena->offset + size > arena->size) {
+        //size_t new_size = ARENA_SIZE * 2;
+        //char* tmp_buffer = realloc(arena->buffer, new_size);
+        //if (tmp_buffer == NULL) 
+        //    return NULL;
+        //arena->buffer = tmp_buffer;
+        //arena->size = new_size;
+        return NULL;
+    }
 
     void* ptr = arena->buffer + arena->offset;
     arena->offset += size;
