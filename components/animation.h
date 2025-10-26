@@ -7,7 +7,7 @@ typedef struct Animation {
     int pos_x, pos_y;
     SDL_Rect stencil;
 
-} Animation;
+} Animation; // 24 bytes
 
 void animation_start(Animation *animation)
 {
@@ -38,7 +38,7 @@ void animation_destroy(Animation *animation)
 {
 }
 
-Animation animation_create()
+Animation animation_create() // TODO - parameterize animation properties
 {
     Animation animation;
     animation.num_frames = 4;

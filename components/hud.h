@@ -9,7 +9,7 @@ typedef struct Hud {
 
 void hud_render(Hud *hud)
 {
-    texture_render(gamestate.renderer, hud->fps_texture, hud->fps_pos_x, hud->fps_pos_y);
+    texture_render(hud->fps_texture, hud->fps_pos_x, hud->fps_pos_y);
 }
 
 void hud_update(Hud *hud, float fps)
@@ -21,7 +21,7 @@ void hud_update(Hud *hud, float fps)
     char fps_value[50];
     sprintf(fps_value, "%.2f", fps);
     strcat(fps_label, fps_value);
-    hud->fps_texture = texture_create_text(gamestate.renderer, fps_label, hud->font, hud->color, 5, 5);
+    hud->fps_texture = texture_create_text(fps_label, hud->font, hud->color, 5, 5);
 }
 
 void hud_create(Hud *hud)
@@ -34,7 +34,7 @@ void hud_create(Hud *hud)
     hud->color.a = 255;
 
     hud->font = TTF_OpenFont("resources/fonts/nes.ttf", 10);
-    hud->fps_texture = texture_create_text(gamestate.renderer, "FPS: 0", hud->font, hud->color, 5, 5);
+    hud->fps_texture = texture_create_text("FPS: 0", hud->font, hud->color, 5, 5);
 }
 
 void hud_destroy(Hud *hud)
