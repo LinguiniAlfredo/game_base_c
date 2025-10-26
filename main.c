@@ -18,7 +18,6 @@ Arena arena;
 Entity *entities[MAX_ENTITIES];
 Hud *hud;
 
-SDL_Renderer *renderer = NULL;
 SDL_Window *window = NULL;
 
 int initialize()
@@ -36,12 +35,12 @@ int initialize()
         return 1;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL) {
+    gamestate.renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (gamestate.renderer == NULL) {
         printf("renderer could not be created : %s", SDL_GetError());
         return 1;
     }
-    SDL_RenderSetLogicalSize(renderer, gamestate.internal_screen_width,
+    SDL_RenderSetLogicalSize(gamestate.renderer, gamestate.internal_screen_width,
                             gamestate.internal_screen_height);
 
     int imgFlags = IMG_INIT_PNG;
@@ -92,7 +91,7 @@ int handle_events()
 
 void update(float delta_time, float fps)
 {
-    hud_update(hud, fps, renderer);
+    hud_update(hud, fps);
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entities[i]) {
             entities[i]->update(entities[i], delta_time);
@@ -102,18 +101,18 @@ void update(float delta_time, float fps)
 
 void render()
 {
-    SDL_SetRenderDrawColor(renderer, 0xF5, 0xF5, 0xF5, 0xFF);
-    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(gamestate.renderer, 0xF5, 0xF5, 0xF5, 0xFF);
+    SDL_RenderClear(gamestate.renderer);
 
     if (gamestate.debug)
-        hud_render(hud, renderer);
+        hud_render(hud);
 
     for (int i = 0; i < MAX_ENTITIES; i++) {
         if (entities[i]) {
-            entities[i]->draw(entities[i], renderer);
+            entities[i]->render(entities[i]);
         }
     }
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(gamestate.renderer);
 }
 
 void game_loop()
@@ -142,7 +141,9 @@ void game_loop()
         if (ticks < gamestate.ticks_per_frame)
             SDL_Delay(gamestate.ticks_per_frame - ticks);
 
-        delta_time = ticks / 1000.f;
+        if (fps > 0)
+            delta_time = 1 / fps;
+
         timer_start(&delta_timer);
     }
 }
@@ -157,9 +158,9 @@ void close_app()
     arena_reset(&arena);
     arena_destroy(&arena);
 
-    SDL_DestroyRenderer(renderer);
+    SDL_DestroyRenderer(gamestate.renderer);
     SDL_DestroyWindow(window);
-    renderer = NULL;
+    gamestate.renderer = NULL;
     window = NULL;
 
     TTF_Quit();
@@ -177,12 +178,12 @@ int main()
         hud = (Hud *)arena_alloc(&arena, sizeof(Hud));
         if (hud == NULL)
             printf("Unable to allocate hud");
-        hud_create(hud, renderer);
+        hud_create(hud);
 
         Player *player = (Player *)arena_alloc(&arena, sizeof(Player));
         if (player == NULL)
             printf("Unable to allocate player");
-        player_create(player, renderer);
+        player_create(player);
         entities[0] = (Entity *)player;
 
         game_loop();

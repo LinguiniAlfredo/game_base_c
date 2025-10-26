@@ -45,3 +45,9 @@ void texture_render(SDL_Renderer* renderer, SDL_Texture* texture, int x, int y)
     SDL_Rect renderQuad = { x, y, tex_w, tex_h };
     SDL_RenderCopy(renderer, texture, NULL, &renderQuad);
 }
+
+void texture_render_clipped(SDL_Renderer* renderer, SDL_Texture* texture, int x, int y, SDL_Rect stencil)
+{
+    SDL_Rect renderQuad = { x, y, stencil.w, stencil.h };
+    SDL_RenderCopy(renderer, texture, &stencil, &renderQuad);
+}

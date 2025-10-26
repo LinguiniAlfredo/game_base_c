@@ -13,6 +13,8 @@ typedef struct {
 
     float ticks_per_frame;
 
+    SDL_Renderer *renderer;
+
 } Gamestate;
 
 Gamestate gamestate = {
