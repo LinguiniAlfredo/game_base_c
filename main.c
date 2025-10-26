@@ -12,11 +12,10 @@
 #include "utils/timer.h"
 
 #define ARENA_SIZE 1000
-#define MAX_ENTITIES (ARENA_SIZE / sizeof(Entity))
 
 Arena arena;
-Entity *entities[MAX_ENTITIES];
 Hud *hud;
+Player *player;
 
 SDL_Window *window = NULL;
 
@@ -79,12 +78,8 @@ int handle_events()
                     break;
             }
         }
+        player_handle_events(player, &e);
 
-        for (int i = 0; i < MAX_ENTITIES; i++) {
-            if (entities[i]) {
-                entities[i]->handle_events(entities[i], &e);
-            }
-        }
     }
     return quit;
 }
@@ -92,11 +87,7 @@ int handle_events()
 void update(float delta_time, float fps)
 {
     hud_update(hud, fps);
-    for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (entities[i]) {
-            entities[i]->update(entities[i], delta_time);
-        }
-    }
+    player_update(player, delta_time);
 }
 
 void render()
@@ -106,12 +97,8 @@ void render()
 
     if (gamestate.debug)
         hud_render(hud);
+    player_render(player);
 
-    for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (entities[i]) {
-            entities[i]->render(entities[i]);
-        }
-    }
     SDL_RenderPresent(gamestate.renderer);
 }
 
@@ -151,10 +138,8 @@ void game_loop()
 void close_app()
 {
     hud_destroy(hud);
-    for (int i = 0; i < MAX_ENTITIES; i++) {
-        if (entities[i])
-            entities[i]->destroy(entities[i]);
-    }
+    player_destroy(player);
+
     arena_reset(&arena);
     arena_destroy(&arena);
 
@@ -180,11 +165,10 @@ int main()
             printf("Unable to allocate hud");
         hud_create(hud);
 
-        Player *player = (Player *)arena_alloc(&arena, sizeof(Player));
+        player = (Player *)arena_alloc(&arena, sizeof(Player));
         if (player == NULL)
             printf("Unable to allocate player");
         player_create(player);
-        entities[0] = (Entity *)player;
 
         game_loop();
     }
