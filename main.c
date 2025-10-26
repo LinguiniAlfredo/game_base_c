@@ -6,8 +6,9 @@
 
 #include "gamestate.h"
 #include "components/texture.h"
+#include "components/animation.h"
 #include "components/hud.h"
-#include "player.h"
+#include "entities/player.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
 
@@ -84,10 +85,10 @@ int handle_events()
     return quit;
 }
 
-void update(float delta_time, float fps)
+void update(float delta_time, float fps, int current_frame)
 {
     hud_update(hud, fps);
-    player_update(player, delta_time);
+    player_update(player, delta_time, current_frame);
 }
 
 void render()
@@ -108,7 +109,7 @@ void game_loop()
     Timer delta_timer;
 
     int quit = 0;
-    uint32_t counted_frames = 0;
+    uint32_t current_frame = 0;
     float fps = 0;
     float delta_time = 0;
 
@@ -116,12 +117,12 @@ void game_loop()
     timer_start(&delta_timer);
 
     while (!quit) {
-        fps = counted_frames / (timer_get_ticks(&total_timer) / 1000.f);
-        counted_frames++;
+        fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
+        current_frame++;
 
         quit = handle_events();
 
-        update(delta_time, fps);
+        update(delta_time, fps, current_frame);
         render();
 
         int ticks = timer_get_ticks(&delta_timer);
@@ -155,7 +156,6 @@ void close_app()
 
 int main()
 {
-    printf("start...\n");
     arena_create(&arena, ARENA_SIZE);
 
     if (initialize() == 0) {
