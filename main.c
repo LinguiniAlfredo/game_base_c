@@ -3,6 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "gamestate.h"
 #include "components/texture.h"
@@ -109,7 +110,7 @@ void game_loop()
     Timer delta_timer;
 
     int quit = 0;
-    uint32_t current_frame = 0;
+    uint64_t current_frame = 0;
     float fps = 0;
     float delta_time = 0;
 
@@ -119,6 +120,7 @@ void game_loop()
     while (!quit) {
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
+        printf("%ld\n", current_frame);
 
         quit = handle_events();
 

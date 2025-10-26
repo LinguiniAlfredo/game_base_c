@@ -62,47 +62,45 @@ void player_handle_events(Player *player, SDL_Event *e)
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
             player->direction = LEFT;
-            player->action = WALKING;
             player->vel_x = -1.f;
         }
         if (key == SDLK_d) {
             player->direction = RIGHT;
-            player->action = WALKING;
             player->vel_x = 1.f;
         }
         if (key == SDLK_w) {
             player->direction = BACK;
-            player->action = WALKING;
             player->vel_y = -1.f;
         }
         if (key == SDLK_s) {
             player->direction = FRONT;
-            player->action = WALKING;
             player->vel_y = 1.f;
         }
     }
     if (e->type == SDL_KEYUP && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
-            player->action = IDLE;
             if (player->vel_x < 0) {
                 player->vel_x = 0;
             }
         }
         if (key == SDLK_d) {
-            player->action = IDLE;
             if (player->vel_x > 0) {
                 player->vel_x = 0;
             }
         }
         if (key == SDLK_w) {
-            player->action = IDLE;
             player->vel_y = 0;
         }
         if (key == SDLK_s) {
-            player->action = IDLE;
             player->vel_y = 0;
         }
+    }
+
+    if (player->vel_x == 0 && player->vel_y == 0) {
+        player->action = IDLE;
+    } else {
+        player->action = WALKING;
     }
 }
 
