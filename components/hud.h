@@ -4,7 +4,8 @@ typedef struct Hud {
     SDL_Texture *fps_texture;
     SDL_Color color;
     int fps_pos_x, fps_pos_y;
-} Hud; // 
+
+} Hud; // 28 bytes
 
 void hud_render(Hud *hud)
 {

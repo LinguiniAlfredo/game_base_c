@@ -7,7 +7,7 @@
 #include "gamestate.h"
 #include "components/texture.h"
 #include "components/hud.h"
-#include "entities.h"
+#include "player.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
 
