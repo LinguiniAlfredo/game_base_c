@@ -11,6 +11,7 @@ typedef enum Direction {
 typedef enum Action {
     IDLE,
     WALKING,
+    SLEEPING,
     ACTIONCOUNT
 } Action;
 
@@ -42,17 +43,17 @@ void player_move(Player *player, float delta_time)
 void player_update(Player *player, float delta_time, int current_frame)
 {
     player_move(player, delta_time);
-
-    if (player->action == IDLE) {
-        if (current_frame % (60*4) == 0) {
-            animation_start(&player->animation);
-        }
-    } else if (!player->animation.playing) {
-        animation_start(&player->animation);
-    }
-
     if (player->animation.playing) {
         animation_update(&player->animation, current_frame);
+    }
+
+    if (player->action == IDLE) {
+        // start blinking every 4 seconds
+        if (current_frame % (60*4) == 0) {
+            animation_start(&player->animation, 4);
+        }
+    } else if (!player->animation.playing) {
+        animation_start(&player->animation, 4);
     }
 }
 
@@ -129,6 +130,7 @@ void player_load_spritesheets(Player *player)
     player->spritesheets[1][1] = texture_create("resources/spritesheets/player_walking_back.png");
     player->spritesheets[1][2] = texture_create("resources/spritesheets/player_walking_left.png");
     player->spritesheets[1][3] = texture_create("resources/spritesheets/player_walking_right.png");
+    player->spritesheets[2][0] = texture_create("resources/spritesheets/player_sleeping_front.png");
 }
 
 void player_create(Player *player)

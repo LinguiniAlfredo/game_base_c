@@ -7,11 +7,13 @@ typedef struct Animation {
     int pos_x, pos_y;
     SDL_Rect stencil;
 
-} Animation; // 24 bytes
+} Animation;
 
-void animation_start(Animation *animation)
+void animation_start(Animation *animation, int num_frames)
 {
     animation->playing = 1;
+    animation->stencil.x = 0;
+    animation->num_frames = num_frames;
 }
 
 void animation_pause(Animation *animation)
@@ -32,6 +34,11 @@ void animation_update(Animation *animation, int current_frame)
             animation_stop(animation);
         }
     }
+}
+
+void animation_set_frame(Animation *animation, int frame)
+{
+    animation->stencil.x = animation->stencil.w * frame;
 }
 
 void animation_destroy(Animation *animation)

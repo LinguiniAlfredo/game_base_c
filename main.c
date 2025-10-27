@@ -9,6 +9,7 @@
 #include "components/texture.h"
 #include "components/animation.h"
 #include "components/hud.h"
+#include "entities/pickups/coin.h"
 #include "entities/player.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
@@ -18,6 +19,7 @@
 Arena arena;
 Hud *hud;
 Player *player;
+Coin *coin;
 
 SDL_Window *window = NULL;
 
@@ -90,6 +92,7 @@ void update(float delta_time, float fps, int current_frame)
 {
     hud_update(hud, fps);
     player_update(player, delta_time, current_frame);
+    coin_update(coin, current_frame);
 }
 
 void render()
@@ -100,6 +103,7 @@ void render()
     if (gamestate.debug)
         hud_render(hud);
     player_render(player);
+    coin_render(coin);
 
     SDL_RenderPresent(gamestate.renderer);
 }
@@ -107,7 +111,7 @@ void render()
 void game_loop()
 {
     Timer total_timer;
-    Timer delta_timer;
+    Timer fps_cap_timer;
 
     int quit = 0;
     uint64_t current_frame = 0;
@@ -115,26 +119,25 @@ void game_loop()
     float delta_time = 0;
 
     timer_start(&total_timer);
-    timer_start(&delta_timer);
+    timer_start(&fps_cap_timer);
 
     while (!quit) {
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
-        printf("%ld\n", current_frame);
 
         quit = handle_events();
 
         update(delta_time, fps, current_frame);
         render();
 
-        int ticks = timer_get_ticks(&delta_timer);
+        int ticks = timer_get_ticks(&fps_cap_timer);
         if (ticks < gamestate.ticks_per_frame)
             SDL_Delay(gamestate.ticks_per_frame - ticks);
 
         if (fps > 0)
             delta_time = 1 / fps;
 
-        timer_start(&delta_timer);
+        timer_start(&fps_cap_timer);
     }
 }
 
@@ -142,6 +145,7 @@ void close_app()
 {
     hud_destroy(hud);
     player_destroy(player);
+    coin_destroy(coin);
 
     arena_reset(&arena);
     arena_destroy(&arena);
@@ -171,6 +175,11 @@ int main()
         if (player == NULL)
             printf("Unable to allocate player");
         player_create(player);
+
+        coin = (Coin *)arena_alloc(&arena, sizeof(Coin));
+        if (coin == NULL)
+            printf("Unable to allocate coin");
+        coin_create(coin);
 
         game_loop();
     }
