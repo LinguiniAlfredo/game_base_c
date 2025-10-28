@@ -16,32 +16,40 @@ typedef enum Action {
 } Action;
 
 typedef struct Player {
-    int alive;
-    float x, y;
-    float speed;
-    float vel_x, vel_y;
+    GameObject base;
+
     SDL_Texture *spritesheets[ACTIONCOUNT][DIRCOUNT];
     Animation animation;
     Direction direction;
     Action action;
+    Collision collision;
 
 } Player;
 
 
-void player_render(Player *player)
+void player_render(GameObject *gameobject)
 {
-    texture_render_clipped(player->spritesheets[player->action][player->direction], (int)player->x,
-                 (int)player->y, player->animation.stencil);
+    Player *player = (Player *)gameobject;
+
+    texture_render_clipped(player->spritesheets[player->action][player->direction], (int)player->base.pos_x,
+                 (int)player->base.pos_y, player->animation.stencil);
+}
+
+void player_render_collision(GameObject *gameobject) {
+    Player *player = (Player *)gameobject;
+    collision_render(&player->collision);
 }
 
 void player_move(Player *player, float delta_time)
 {
-    player->x += player->vel_x * player->speed * delta_time;
-    player->y += player->vel_y * player->speed * delta_time;
+    player->base.pos_x += player->base.vel_x * player->base.speed * delta_time;
+    player->base.pos_y += player->base.vel_y * player->base.speed * delta_time;
 }
 
-void player_update(Player *player, float delta_time, int current_frame)
+void player_update(GameObject *gameobject, float delta_time, int current_frame)
 {
+    Player *player = (Player *)gameobject;
+
     player_move(player, delta_time);
     if (player->animation.playing) {
         animation_update(&player->animation, current_frame);
@@ -57,56 +65,60 @@ void player_update(Player *player, float delta_time, int current_frame)
     }
 }
 
-void player_handle_events(Player *player, SDL_Event *e)
+void player_handle_events(GameObject *gameobject, SDL_Event *e)
 {
+    Player *player = (Player *)gameobject;
+
     if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
             player->direction = LEFT;
-            player->vel_x = -1.f;
+            player->base.vel_x = -1.f;
         }
         if (key == SDLK_d) {
             player->direction = RIGHT;
-            player->vel_x = 1.f;
+            player->base.vel_x = 1.f;
         }
         if (key == SDLK_w) {
             player->direction = BACK;
-            player->vel_y = -1.f;
+            player->base.vel_y = -1.f;
         }
         if (key == SDLK_s) {
             player->direction = FRONT;
-            player->vel_y = 1.f;
+            player->base.vel_y = 1.f;
         }
     }
     if (e->type == SDL_KEYUP && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
-            if (player->vel_x < 0) {
-                player->vel_x = 0;
+            if (player->base.vel_x < 0) {
+                player->base.vel_x = 0;
             }
         }
         if (key == SDLK_d) {
-            if (player->vel_x > 0) {
-                player->vel_x = 0;
+            if (player->base.vel_x > 0) {
+                player->base.vel_x = 0;
             }
         }
         if (key == SDLK_w) {
-            player->vel_y = 0;
+            player->base.vel_y = 0;
         }
         if (key == SDLK_s) {
-            player->vel_y = 0;
+            player->base.vel_y = 0;
         }
     }
 
-    if (player->vel_x == 0 && player->vel_y == 0) {
+    if (player->base.vel_x == 0 && player->base.vel_y == 0) {
         player->action = IDLE;
     } else {
         player->action = WALKING;
     }
 }
 
-void player_destroy(Player *player)
+void player_destroy(GameObject *gameobject)
 {
+    Player *player = (Player *)gameobject;
+
     for (int i = 0; i < ACTIONCOUNT; i++) {
         for (int j = 0; j < DIRCOUNT; j++) {
             SDL_DestroyTexture(player->spritesheets[i][j]);
@@ -135,15 +147,24 @@ void player_load_spritesheets(Player *player)
 
 void player_create(Player *player)
 {
-    player->x = gamestate.internal_screen_width / 2;
-    player->y = gamestate.internal_screen_height / 2;
-    player->speed = 100.f;
-    player->vel_x = 0;
-    player->vel_y = 0;
-    player->alive = 1;
-    player->animation = animation_create(); // TODO parameterize animation properties
-    player->direction = FRONT;
-    player->action = IDLE;
-    player_load_spritesheets(player);
+    player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
 
+    player->base.pos_x                = gamestate.internal_screen_width / 2;
+    player->base.pos_y                = gamestate.internal_screen_height / 2;
+    player->base.speed            = 100.f;
+    player->base.vel_x            = 0;
+    player->base.vel_y            = 0;
+    player->base.alive            = 1;
+    player->base.update           = player_update;
+    player->base.render           = player_render;
+    player->base.render_collision = player_render_collision;
+    player->base.handle_events    = player_handle_events;
+    player->base.destroy          = player_destroy;
+
+    player->animation             = animation_create();
+    player->direction             = FRONT;
+    player->action                = IDLE;
+    player->collision             = collision_create(player->base.pos_x, player->base.pos_y, 8, 8);
+
+    player_load_spritesheets(player);
 }

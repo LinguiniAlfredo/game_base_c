@@ -8,18 +8,20 @@
 #include "gamestate.h"
 #include "components/texture.h"
 #include "components/animation.h"
-#include "components/hud.h"
+#include "components/collision.h"
+#include "ui/hud.h"
+#include "entities/gameobject.h"
 #include "entities/pickups/coin.h"
 #include "entities/player.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
 
 #define ARENA_SIZE 1000
+#define MAX_GAMEOBJECTS 5
 
 Arena arena;
 Hud *hud;
-Player *player;
-Coin *coin;
+GameObject *gameobjects[MAX_GAMEOBJECTS];
 
 SDL_Window *window = NULL;
 
@@ -82,7 +84,11 @@ int handle_events()
                     break;
             }
         }
-        player_handle_events(player, &e);
+        for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+            if (gameobjects[i]->components & CONTROLLER) {
+                gameobjects[i]->handle_events(gameobjects[i], &e);
+            }
+        }
 
     }
     return quit;
@@ -91,8 +97,9 @@ int handle_events()
 void update(float delta_time, float fps, int current_frame)
 {
     hud_update(hud, fps);
-    player_update(player, delta_time, current_frame);
-    coin_update(coin, current_frame);
+    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+        gameobjects[i]->update(gameobjects[i], delta_time, current_frame);
+    }
 }
 
 void render()
@@ -100,10 +107,20 @@ void render()
     SDL_SetRenderDrawColor(gamestate.renderer, 0xF5, 0xF5, 0xF5, 0xFF);
     SDL_RenderClear(gamestate.renderer);
 
-    if (gamestate.debug)
+    if (gamestate.debug) {
         hud_render(hud);
-    player_render(player);
-    coin_render(coin);
+        for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+            if (gameobjects[i]->components & COLLISION) {
+                gameobjects[i]->render_collision(gameobjects[i]);
+            }
+        }
+    }
+
+    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+        if (gameobjects[i]->components & TEXTURE) {
+            gameobjects[i]->render(gameobjects[i]);
+        }
+    }
 
     SDL_RenderPresent(gamestate.renderer);
 }
@@ -144,8 +161,9 @@ void game_loop()
 void close_app()
 {
     hud_destroy(hud);
-    player_destroy(player);
-    coin_destroy(coin);
+    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+        gameobjects[i]->destroy(gameobjects[i]);
+    }
 
     arena_reset(&arena);
     arena_destroy(&arena);
@@ -171,15 +189,12 @@ int main()
             printf("Unable to allocate hud");
         hud_create(hud);
 
-        player = (Player *)arena_alloc(&arena, sizeof(Player));
+        // TODO - Put object allocations and gameobject array into level struct
+        Player *player = (Player *)arena_alloc(&arena, sizeof(Player));
         if (player == NULL)
             printf("Unable to allocate player");
         player_create(player);
-
-        coin = (Coin *)arena_alloc(&arena, sizeof(Coin));
-        if (coin == NULL)
-            printf("Unable to allocate coin");
-        coin_create(coin);
+        gameobjects[0] = (GameObject *)player;
 
         game_loop();
     }
