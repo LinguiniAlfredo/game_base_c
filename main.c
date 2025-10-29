@@ -20,12 +20,14 @@
 #define ARENA_SIZE 1000
 #define MAX_GAMEOBJECTS 5
 
-// TODO - Create scene struct that holds gameobjects
-//      - Implement sound
-//      - Implement collision detection
+// TODO - Implement sound
+//      - Implement collision detection (coin collection with sound)
 //      - Create main menu
 //      - Implement vector2 struct and use within player movement code
 //      - Add more components to hud, always render this, separate out fps to debug only
+//          - if we arena allocate it, it will get reallocated when scenes change, probably bad, unless we can store away the data 
+//          - player score, lives remaining, etc. needs to persist across scene change
+//      - Extra credit: make editor
 
 Arena arena;
 Scene *current_scene;
