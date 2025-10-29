@@ -1,6 +1,6 @@
 #pragma once
 
-typedef enum Direction {
+typedef enum {
     FRONT,
     BACK,
     LEFT,
@@ -8,7 +8,7 @@ typedef enum Direction {
     DIRCOUNT
 } Direction;
 
-typedef enum Action {
+typedef enum {
     IDLE,
     WALKING,
     SLEEPING,
@@ -44,6 +44,8 @@ void player_move(Player *player, float delta_time)
 {
     player->base.pos_x += player->base.vel_x * player->base.speed * delta_time;
     player->base.pos_y += player->base.vel_y * player->base.speed * delta_time;
+    player->collision.bounds.x = player->base.pos_x;
+    player->collision.bounds.y = player->base.pos_y;
 }
 
 void player_update(GameObject *gameobject, float delta_time, int current_frame)
@@ -149,8 +151,8 @@ void player_create(Player *player)
 {
     player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
 
-    player->base.pos_x                = gamestate.internal_screen_width / 2;
-    player->base.pos_y                = gamestate.internal_screen_height / 2;
+    player->base.pos_x            = gamestate.internal_screen_width / 2;
+    player->base.pos_y            = gamestate.internal_screen_height / 2;
     player->base.speed            = 100.f;
     player->base.vel_x            = 0;
     player->base.vel_y            = 0;

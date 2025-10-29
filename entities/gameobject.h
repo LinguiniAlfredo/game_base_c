@@ -1,20 +1,19 @@
 #pragma once
 
-typedef enum Components {
-    COLLISION  = 1,
-    TEXTURE    = 2,
-    ANIMATION  = 4,
-    PHYSICS    = 8,
-    CONTROLLER = 16
-
-} Components;
+enum ComponentsMask {
+    COLLISION  = 0x1,
+    TEXTURE    = 0x2,
+    ANIMATION  = 0x4,
+    PHYSICS    = 0x8,
+    CONTROLLER = 0x10
+};
 
 typedef struct GameObject {
-    int   alive;
+    unsigned char alive;
     float pos_x, pos_y;
     float speed;
     float vel_x, vel_y;
-    Components components;
+    uint8_t components;
 
     void (*handle_events)(struct GameObject*, SDL_Event *e);
     void (*update)(struct GameObject*, float delta_time, int current_frame);

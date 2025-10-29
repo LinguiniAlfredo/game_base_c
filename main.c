@@ -19,6 +19,13 @@
 #define ARENA_SIZE 1000
 #define MAX_GAMEOBJECTS 5
 
+// TODO - Create scene struct that holds gameobjects
+//      - Implement sound
+//      - Implement collision detection
+//      - Create main menu
+//      - Implement vector2 struct and use within player movement code
+//      - Add more components to hud, always render this, separate out fps to debug only
+
 Arena arena;
 Hud *hud;
 GameObject *gameobjects[MAX_GAMEOBJECTS];
@@ -85,7 +92,7 @@ int handle_events()
             }
         }
         for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-            if (gameobjects[i]->components & CONTROLLER) {
+            if (gameobjects[i] != NULL && gameobjects[i]->components & CONTROLLER) {
                 gameobjects[i]->handle_events(gameobjects[i], &e);
             }
         }
@@ -94,31 +101,30 @@ int handle_events()
     return quit;
 }
 
-void update(float delta_time, float fps, int current_frame)
+void update_and_render(float delta_time, float fps, int current_frame)
 {
     hud_update(hud, fps);
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        gameobjects[i]->update(gameobjects[i], delta_time, current_frame);
+        if (gameobjects[i] != NULL) {
+            gameobjects[i]->update(gameobjects[i], delta_time, current_frame);
+        }
     }
-}
 
-void render()
-{
     SDL_SetRenderDrawColor(gamestate.renderer, 0xF5, 0xF5, 0xF5, 0xFF);
     SDL_RenderClear(gamestate.renderer);
 
     if (gamestate.debug) {
         hud_render(hud);
-        for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-            if (gameobjects[i]->components & COLLISION) {
-                gameobjects[i]->render_collision(gameobjects[i]);
-            }
-        }
     }
 
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (gameobjects[i]->components & TEXTURE) {
-            gameobjects[i]->render(gameobjects[i]);
+        if (gameobjects[i] != NULL) {
+            if (gamestate.debug && gameobjects[i]->components & COLLISION) {
+                gameobjects[i]->render_collision(gameobjects[i]);
+            }
+            if (gameobjects[i]->components & TEXTURE) {
+                gameobjects[i]->render(gameobjects[i]);
+            }
         }
     }
 
@@ -144,8 +150,7 @@ void game_loop()
 
         quit = handle_events();
 
-        update(delta_time, fps, current_frame);
-        render();
+        update_and_render(delta_time, fps, current_frame);
 
         int ticks = timer_get_ticks(&fps_cap_timer);
         if (ticks < gamestate.ticks_per_frame)
@@ -162,7 +167,9 @@ void close_app()
 {
     hud_destroy(hud);
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        gameobjects[i]->destroy(gameobjects[i]);
+        if (gameobjects[i] != NULL) {
+            gameobjects[i]->destroy(gameobjects[i]);
+        }
     }
 
     arena_reset(&arena);
@@ -189,12 +196,17 @@ int main()
             printf("Unable to allocate hud");
         hud_create(hud);
 
-        // TODO - Put object allocations and gameobject array into level struct
         Player *player = (Player *)arena_alloc(&arena, sizeof(Player));
         if (player == NULL)
             printf("Unable to allocate player");
         player_create(player);
         gameobjects[0] = (GameObject *)player;
+
+        Coin *coin = (Coin *)arena_alloc(&arena, sizeof(Coin));
+        if (coin == NULL)
+            printf("Unable to allocate coin");
+        coin_create(coin);
+        gameobjects[1] = (GameObject *)coin;
 
         game_loop();
     }
