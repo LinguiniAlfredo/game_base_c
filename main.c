@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <limits.h>
 
+#include "utils/arena.h"
+#include "utils/timer.h"
 #include "gamestate.h"
 #include "components/texture.h"
 #include "components/animation.h"
@@ -13,8 +15,7 @@
 #include "entities/gameobject.h"
 #include "entities/pickups/coin.h"
 #include "entities/player.h"
-#include "utils/arena.h"
-#include "utils/timer.h"
+#include "scenes/scene.h"
 
 #define ARENA_SIZE 1000
 #define MAX_GAMEOBJECTS 5
@@ -27,8 +28,7 @@
 //      - Add more components to hud, always render this, separate out fps to debug only
 
 Arena arena;
-Hud *hud;
-GameObject *gameobjects[MAX_GAMEOBJECTS];
+Scene *current_scene;
 
 SDL_Window *window = NULL;
 
@@ -83,6 +83,10 @@ int handle_events()
                     quit = 1;
                     break;
                 case SDLK_1:
+                    scene_change(current_scene, LEVEL1);
+                    break;
+                case SDLK_2:
+                    scene_change(current_scene, LEVEL2);
                     break;
                 case SDLK_F1:
                     toggle_debug();
@@ -92,8 +96,8 @@ int handle_events()
             }
         }
         for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-            if (gameobjects[i] != NULL && gameobjects[i]->components & CONTROLLER) {
-                gameobjects[i]->handle_events(gameobjects[i], &e);
+            if (current_scene->gameobjects[i] != NULL && current_scene->gameobjects[i]->components & CONTROLLER) {
+                current_scene->gameobjects[i]->handle_events(current_scene->gameobjects[i], &e);
             }
         }
 
@@ -103,27 +107,22 @@ int handle_events()
 
 void update_and_render(float delta_time, float fps, int current_frame)
 {
-    hud_update(hud, fps);
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (gameobjects[i] != NULL) {
-            gameobjects[i]->update(gameobjects[i], delta_time, current_frame);
+        if (current_scene->gameobjects[i] != NULL) {
+            current_scene->gameobjects[i]->update(current_scene->gameobjects[i], delta_time, current_frame);
         }
     }
 
     SDL_SetRenderDrawColor(gamestate.renderer, 0xF5, 0xF5, 0xF5, 0xFF);
     SDL_RenderClear(gamestate.renderer);
 
-    if (gamestate.debug) {
-        hud_render(hud);
-    }
-
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (gameobjects[i] != NULL) {
-            if (gamestate.debug && gameobjects[i]->components & COLLISION) {
-                gameobjects[i]->render_collision(gameobjects[i]);
+        if (current_scene->gameobjects[i] != NULL) {
+            if (gamestate.debug && current_scene->gameobjects[i]->components & COLLISION) {
+                current_scene->gameobjects[i]->render_collision(current_scene->gameobjects[i]);
             }
-            if (gameobjects[i]->components & TEXTURE) {
-                gameobjects[i]->render(gameobjects[i]);
+            if (current_scene->gameobjects[i]->components & TEXTURE) {
+                current_scene->gameobjects[i]->render(current_scene->gameobjects[i]);
             }
         }
     }
@@ -165,15 +164,14 @@ void game_loop()
 
 void close_app()
 {
-    hud_destroy(hud);
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (gameobjects[i] != NULL) {
-            gameobjects[i]->destroy(gameobjects[i]);
+        if (current_scene->gameobjects[i] != NULL) {
+            current_scene->gameobjects[i]->destroy(current_scene->gameobjects[i]);
         }
     }
 
-    arena_reset(&arena);
-    arena_destroy(&arena);
+    arena_reset(&gamestate.arena);
+    arena_destroy(&gamestate.arena);
 
     SDL_DestroyRenderer(gamestate.renderer);
     SDL_DestroyWindow(window);
@@ -187,26 +185,14 @@ void close_app()
 
 int main()
 {
-    arena_create(&arena, ARENA_SIZE);
+    gamestate.arena = arena;
+    arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-
-        hud = (Hud *)arena_alloc(&arena, sizeof(Hud));
-        if (hud == NULL)
-            printf("Unable to allocate hud");
-        hud_create(hud);
-
-        Player *player = (Player *)arena_alloc(&arena, sizeof(Player));
-        if (player == NULL)
-            printf("Unable to allocate player");
-        player_create(player);
-        gameobjects[0] = (GameObject *)player;
-
-        Coin *coin = (Coin *)arena_alloc(&arena, sizeof(Coin));
-        if (coin == NULL)
-            printf("Unable to allocate coin");
-        coin_create(coin);
-        gameobjects[1] = (GameObject *)coin;
+        current_scene = (Scene *)arena_alloc(&gamestate.arena, sizeof(Scene));
+        if (current_scene == NULL)
+            printf("Unable to allocate scene\n");
+        scene_create(current_scene, LEVEL1);
 
         game_loop();
     }

@@ -26,14 +26,14 @@ void hud_update(Hud *hud, float fps)
 
 void hud_create(Hud *hud)
 {
-    hud->fps_pos_x = 0;
-    hud->fps_pos_y = 0;
-    hud->color.r = 0;
-    hud->color.g = 0;
-    hud->color.b = 0;
-    hud->color.a = 255;
+    hud->fps_pos_x   = 0;
+    hud->fps_pos_y   = 0;
+    hud->color.r     = 0;
+    hud->color.g     = 0;
+    hud->color.b     = 0;
+    hud->color.a     = 255;
 
-    hud->font = TTF_OpenFont("resources/fonts/nes.ttf", 10);
+    hud->font        = TTF_OpenFont("resources/fonts/nes.ttf", 10);
     hud->fps_texture = texture_create_text("FPS: 0", hud->font, hud->color, 5, 5);
 }
 
