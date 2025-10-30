@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <limits.h>
 
+#define ARENA_SIZE 1024
+#define MAX_GAMEOBJECTS 5
+
+#include "entities/types.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
 #include "gamestate.h"
@@ -16,9 +20,6 @@
 #include "entities/pickups/coin.h"
 #include "entities/player.h"
 #include "scenes/scene.h"
-
-#define ARENA_SIZE 1000
-#define MAX_GAMEOBJECTS 5
 
 // TODO - Implement sound
 //      - Implement collision detection (coin collection with sound)
@@ -74,6 +75,7 @@ void toggle_debug() { gamestate.debug = !gamestate.debug; }
 int handle_events()
 {
     SDL_Event e;
+
     int quit = 0;
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT)
@@ -98,8 +100,9 @@ int handle_events()
             }
         }
         for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-            if (current_scene->gameobjects[i] != NULL && current_scene->gameobjects[i]->components & CONTROLLER) {
-                current_scene->gameobjects[i]->handle_events(current_scene->gameobjects[i], &e);
+            GameObject *obj = current_scene->gameobjects[i];
+            if (obj != NULL && obj->components & CONTROLLER) {
+                obj->handle_events(obj, &e);
             }
         }
 
@@ -110,8 +113,12 @@ int handle_events()
 void update_and_render(float delta_time, float fps, int current_frame)
 {
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (current_scene->gameobjects[i] != NULL) {
-            current_scene->gameobjects[i]->update(current_scene->gameobjects[i], delta_time, current_frame);
+        GameObject *obj = current_scene->gameobjects[i];
+        if (obj != NULL) {
+            obj->update(obj, delta_time, current_frame);
+            if (obj->components & COLLISION) {
+                obj->handle_collision(obj, current_scene->gameobjects);
+            }
         }
     }
 
@@ -119,12 +126,13 @@ void update_and_render(float delta_time, float fps, int current_frame)
     SDL_RenderClear(gamestate.renderer);
 
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (current_scene->gameobjects[i] != NULL) {
-            if (gamestate.debug && current_scene->gameobjects[i]->components & COLLISION) {
-                current_scene->gameobjects[i]->render_collision(current_scene->gameobjects[i]);
+        GameObject *obj = current_scene->gameobjects[i];
+        if (obj != NULL) {
+            if (gamestate.debug && obj->components & COLLISION) {
+                obj->render_collision(obj);
             }
-            if (current_scene->gameobjects[i]->components & TEXTURE) {
-                current_scene->gameobjects[i]->render(current_scene->gameobjects[i]);
+            if (obj->components & TEXTURE) {
+                obj->render(obj);
             }
         }
     }
@@ -167,8 +175,9 @@ void game_loop()
 void close_app()
 {
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (current_scene->gameobjects[i] != NULL) {
-            current_scene->gameobjects[i]->destroy(current_scene->gameobjects[i]);
+        GameObject *obj = current_scene->gameobjects[i];
+        if (obj != NULL) {
+            obj->destroy(obj);
         }
     }
 

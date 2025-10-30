@@ -23,6 +23,8 @@ typedef struct Player {
     Direction direction;
     Action action;
     Collision collision;
+    float prev_x;
+    float prev_y;
 
 } Player;
 
@@ -40,10 +42,41 @@ void player_render_collision(GameObject *gameobject) {
     collision_render(&player->collision);
 }
 
+void player_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
+{
+    Player *player = (Player *)gameobject;
+    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+        GameObject *obj = gameobjects[i];
+        if (obj != NULL && obj->type != PLAYER && obj->solid && obj->components & COLLISION) {
+            switch (obj->type) {
+                case COIN: {
+                    Coin *obj = (Coin *)obj;
+                    if (collision_detect(player->collision.bounds, obj->collision.bounds)) {
+                        printf("colliding\n");
+                        player->base.pos_x = player->prev_x;
+                        player->base.pos_y = player->prev_y;
+                        player->collision.bounds.x = player->base.pos_x;
+                        player->collision.bounds.y = player->base.pos_y;
+                    }
+                } break;
+                case PLAYER:
+                    break;
+                case BLOCK:
+                    break;
+            }
+        }
+    }
+}
+
 void player_move(Player *player, float delta_time)
 {
+    // store away previous position for collision to revert if necessary
+    player->prev_x = player->base.pos_x;
+    player->prev_y = player->base.pos_y;
+
     player->base.pos_x += player->base.vel_x * player->base.speed * delta_time;
     player->base.pos_y += player->base.vel_y * player->base.speed * delta_time;
+
     player->collision.bounds.x = player->base.pos_x;
     player->collision.bounds.y = player->base.pos_y;
 }
@@ -53,6 +86,7 @@ void player_update(GameObject *gameobject, float delta_time, int current_frame)
     Player *player = (Player *)gameobject;
 
     player_move(player, delta_time);
+
     if (player->animation.playing) {
         animation_update(&player->animation, current_frame);
     }
@@ -149,6 +183,7 @@ void player_load_spritesheets(Player *player)
 
 void player_create(Player *player)
 {
+    player->base.type             = PLAYER;
     player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
 
     player->base.pos_x            = gamestate.internal_screen_width / 2;
@@ -157,12 +192,16 @@ void player_create(Player *player)
     player->base.vel_x            = 0;
     player->base.vel_y            = 0;
     player->base.alive            = 1;
+    player->base.solid            = 1;
     player->base.update           = player_update;
     player->base.render           = player_render;
     player->base.render_collision = player_render_collision;
+    player->base.handle_collision = player_handle_collision;
     player->base.handle_events    = player_handle_events;
     player->base.destroy          = player_destroy;
 
+    player->prev_x                = 0;
+    player->prev_y                = 0;
     player->animation             = animation_create();
     player->direction             = FRONT;
     player->action                = IDLE;

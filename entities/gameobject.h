@@ -9,16 +9,19 @@ enum ComponentsMask {
 };
 
 typedef struct GameObject {
-    unsigned char alive;
+    EntityType type;
     float pos_x, pos_y;
     float speed;
     float vel_x, vel_y;
     uint8_t components;
+    unsigned char alive;
+    unsigned char solid;
 
-    void (*handle_events)(struct GameObject*, SDL_Event *e);
-    void (*update)(struct GameObject*, float delta_time, int current_frame);
+    void (*handle_events)(struct GameObject*, SDL_Event*);
+    void (*update)(struct GameObject*, float, int);
     void (*render)(struct GameObject*);
     void (*render_collision)(struct GameObject*);
+    void (*handle_collision)(struct GameObject*, struct GameObject *gameobjects[]);
     void (*destroy)(struct GameObject*);
     
 } GameObject;
