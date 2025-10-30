@@ -50,8 +50,8 @@ void player_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
         if (obj != NULL && obj->type != PLAYER && obj->solid && obj->components & COLLISION) {
             switch (obj->type) {
                 case COIN: {
-                    Coin *obj = (Coin *)obj;
-                    if (collision_detect(player->collision.bounds, obj->collision.bounds)) {
+                    Coin *coin = (Coin *)obj;
+                    if (collision_detect(player->collision.bounds, coin->collision.bounds)) {
                         printf("colliding\n");
                         player->base.pos_x = player->prev_x;
                         player->base.pos_y = player->prev_y;
