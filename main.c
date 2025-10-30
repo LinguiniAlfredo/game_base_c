@@ -101,7 +101,7 @@ int handle_events()
         }
         for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
             GameObject *obj = current_scene->gameobjects[i];
-            if (obj != NULL && obj->components & CONTROLLER) {
+            if (obj != NULL && obj->components & CONTROLLER && obj->alive) {
                 obj->handle_events(obj, &e);
             }
         }
@@ -114,7 +114,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
 {
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
         GameObject *obj = current_scene->gameobjects[i];
-        if (obj != NULL) {
+        if (obj != NULL && obj->alive) {
             obj->update(obj, delta_time, current_frame);
             if (obj->components & COLLISION) {
                 obj->handle_collision(obj, current_scene->gameobjects);
@@ -128,10 +128,10 @@ void update_and_render(float delta_time, float fps, int current_frame)
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
         GameObject *obj = current_scene->gameobjects[i];
         if (obj != NULL) {
-            if (gamestate.debug && obj->components & COLLISION) {
+            if (gamestate.debug && obj->components & COLLISION && obj->alive) {
                 obj->render_collision(obj);
             }
-            if (obj->components & TEXTURE) {
+            if (obj->components & TEXTURE && obj->alive) {
                 obj->render(obj);
             }
         }

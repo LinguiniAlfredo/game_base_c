@@ -52,11 +52,8 @@ void player_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
                 case COIN: {
                     Coin *coin = (Coin *)obj;
                     if (collision_detect(player->collision.bounds, coin->collision.bounds)) {
-                        printf("colliding\n");
-                        player->base.pos_x = player->prev_x;
-                        player->base.pos_y = player->prev_y;
-                        player->collision.bounds.x = player->base.pos_x;
-                        player->collision.bounds.y = player->base.pos_y;
+                        // TODO - play sound, increment coin count on hud
+                        coin->base.alive = 0;
                     }
                 } break;
                 case PLAYER:
