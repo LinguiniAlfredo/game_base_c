@@ -19,10 +19,12 @@
 #include "components/animation.h"
 #include "components/collision.h"
 #include "ui/hud.h"
+#include "ui/menu.h"
 #include "entities/gameobject.h"
 #include "entities/player.h"
 #include "entities/pickups/coin.h"
 #include "scenes/scene.h"
+#include "input/input.h"
 
 // TODO - Implement sound
 //      - Create main menu
@@ -73,25 +75,35 @@ int initialize()
 
 void toggle_debug() { gamestate.debug = !gamestate.debug; }
 
-int handle_events()
+void toggle_paused() { 
+    if (gamestate.mode != PAUSED) {
+        gamestate.mode = PAUSED;
+    } else {
+        gamestate.mode = GAME;
+    }
+}
+
+void handle_events()
 {
     SDL_Event e;
 
-    int quit = 0;
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT)
-            quit = 1;
+            gamestate.quit = 1;
 
         if (e.type == SDL_KEYDOWN) {
             switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    quit = 1;
+                    gamestate.quit = 1;
                     break;
                 case SDLK_1:
                     scene_change(current_scene, LEVEL1);
                     break;
                 case SDLK_2:
                     scene_change(current_scene, LEVEL2);
+                    break;
+                case SDLK_TAB:
+                    toggle_paused();
                     break;
                 case SDLK_F1:
                     toggle_debug();
@@ -101,10 +113,23 @@ int handle_events()
             }
         }
 
-        GameObject *player = current_scene->gameobjects[0];
-        player->handle_events(player, &e);
+        switch (gamestate.mode) {
+            case MENU:
+                break;
+            case GAME: {
+                GameObject *player = current_scene->gameobjects[0];
+                if (player != NULL)
+                    player->handle_events(player, &e);
+            } break;
+            case PAUSED: {
+                menu_handle_events(&e);
+                menu_render();
+            } break;
+            case EDITOR:
+                break;
+        }
     }
-    return quit;
+
 }
 
 void update_and_render(float delta_time, float fps, int current_frame)
@@ -141,8 +166,6 @@ void game_loop()
 {
     Timer total_timer;
     Timer fps_cap_timer;
-
-    int quit = 0;
     uint64_t current_frame = 0;
     float fps = 0;
     float delta_time = 0;
@@ -150,13 +173,24 @@ void game_loop()
     timer_start(&total_timer);
     timer_start(&fps_cap_timer);
 
-    while (!quit) {
+    while (!gamestate.quit) {
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
 
-        quit = handle_events();
+        handle_events();
 
-        update_and_render(delta_time, fps, current_frame);
+        switch (gamestate.mode) {
+            case MENU:
+                break;
+            case GAME:
+                update_and_render(delta_time, fps, current_frame);
+                break;
+            case PAUSED:
+                menu_render();
+                break;
+            case EDITOR:
+                break;
+        }
 
         int ticks = timer_get_ticks(&fps_cap_timer);
         if (ticks < gamestate.ticks_per_frame)

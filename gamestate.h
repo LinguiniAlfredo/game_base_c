@@ -1,22 +1,33 @@
 #pragma once
 
+typedef enum {
+    MENU,
+    GAME,
+    PAUSED,
+    EDITOR
+} Gamemode;
+
 typedef struct Gamestate {
-    int debug;
-    int gameover;
-    int tile_size;
-    int screen_width;
-    int screen_height;
-    int internal_screen_height;
-    int internal_screen_width;
-    int tile_width;
-    int tile_height;
-    float ticks_per_frame;
     SDL_Renderer *renderer;
-    Arena arena;
+    Arena         arena;
+    Gamemode      mode;
+    int           quit;
+    int           debug;
+    int           gameover;
+    int           tile_size;
+    int           screen_width;
+    int           screen_height;
+    int           internal_screen_height;
+    int           internal_screen_width;
+    int           tile_width;
+    int           tile_height;
+    float         ticks_per_frame;
 
 } Gamestate;
 
 Gamestate gamestate = {
+    .mode                   = GAME,
+    .quit                   = 0,
     .debug                  = 0,
     .gameover               = 0,
     .tile_size              = 16,

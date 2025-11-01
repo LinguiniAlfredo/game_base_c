@@ -1,3 +1,5 @@
+#pragma once
+
 typedef struct {
     uint64_t start_ticks;
     uint64_t paused_ticks;
@@ -5,7 +7,7 @@ typedef struct {
     int      started;
 } Timer;
 
-void timer_start(Timer* timer) 
+void timer_start(Timer* timer)
 {
     timer->started = 1;
     timer->paused = 0;
@@ -14,7 +16,7 @@ void timer_start(Timer* timer)
     timer->paused_ticks = 0;
 }
 
-void timer_stop(Timer* timer) 
+void timer_stop(Timer* timer)
 {
     timer->started = 0;
     timer->paused = 0;
@@ -23,7 +25,7 @@ void timer_stop(Timer* timer)
     timer->paused_ticks = 0;
 }
 
-void timer_pause(Timer* timer) 
+void timer_pause(Timer* timer)
 {
     if (timer->started && timer->paused == 0) {
         timer->paused = 1;
@@ -32,7 +34,7 @@ void timer_pause(Timer* timer)
     }
 }
 
-void timer_unpause(Timer* timer) 
+void timer_unpause(Timer* timer)
 {
     if (timer->started && timer->paused) {
         timer->paused = 0;
@@ -41,7 +43,7 @@ void timer_unpause(Timer* timer)
     }
 }
 
-uint32_t timer_get_ticks(Timer* timer) 
+uint32_t timer_get_ticks(Timer* timer)
 {
     uint32_t time = 0;
 

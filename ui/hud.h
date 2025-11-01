@@ -1,3 +1,4 @@
+#pragma once
 
 typedef struct Hud {
     TTF_Font *font;
