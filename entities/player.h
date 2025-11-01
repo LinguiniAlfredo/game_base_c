@@ -15,7 +15,7 @@ typedef enum {
     ACTIONCOUNT
 } Action;
 
-typedef struct Player {
+typedef struct {
     GameObject base;
 
     SDL_Texture *spritesheets[ACTIONCOUNT][DIRCOUNT];
@@ -111,11 +111,11 @@ void player_handle_events(GameObject *gameobject, SDL_Event *e)
         }
         if (key == SDLK_d) {
             player->direction = RIGHT;
-            player->base.velocity.y = 1.f;
+            player->base.velocity.x = 1.f;
         }
         if (key == SDLK_w) {
             player->direction = BACK;
-            player->base.velocity.x = -1.f;
+            player->base.velocity.y = -1.f;
         }
         if (key == SDLK_s) {
             player->direction = FRONT;
@@ -125,14 +125,10 @@ void player_handle_events(GameObject *gameobject, SDL_Event *e)
     if (e->type == SDL_KEYUP && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
-            if (player->base.velocity.x < 0) {
-                player->base.velocity.x = 0;
-            }
+            player->base.velocity.x = 0;
         }
         if (key == SDLK_d) {
-            if (player->base.velocity.x > 0) {
-                player->base.velocity.x = 0;
-            }
+            player->base.velocity.x = 0;
         }
         if (key == SDLK_w) {
             player->base.velocity.y = 0;
@@ -185,7 +181,6 @@ void player_create(Player *player)
     player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
 
     player->base.position         = vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2);
-    player->prev_position         = vector_create_zero();
     player->base.velocity         = vector_create_zero();
     player->base.speed            = 100.f;
     player->base.alive            = 1;
@@ -196,6 +191,8 @@ void player_create(Player *player)
     player->base.handle_collision = player_handle_collision;
     player->base.handle_events    = player_handle_events;
     player->base.destroy          = player_destroy;
+
+    player->prev_position         = vector_create_zero();
 
     player->animation             = animation_create();
     player->direction             = FRONT;

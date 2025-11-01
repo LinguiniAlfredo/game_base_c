@@ -5,14 +5,6 @@ typedef struct {
     float y;
 } Vector2f;
 
-Vector2f vector_create(float x, float y)
-{
-    Vector2f vector;
-    vector.x = x;
-    vector.y = y;
-    return vector;
-}
-
 Vector2f vector_create_zero()
 {
     Vector2f vector;
@@ -21,12 +13,20 @@ Vector2f vector_create_zero()
     return vector;
 }
 
-float vector_length(Vector2f vector)
+Vector2f vector_create(const float x, const float y)
+{
+    Vector2f vector;
+    vector.x = x;
+    vector.y = y;
+    return vector;
+}
+
+float vector_length(const Vector2f vector)
 {
     return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
-Vector2f vector_normalize(Vector2f vector)
+Vector2f vector_normalize(const Vector2f vector)
 {
     Vector2f normalized = vector_create_zero();
     if (vector_length(vector) != 0) {
@@ -34,20 +34,20 @@ Vector2f vector_normalize(Vector2f vector)
         normalized.y = vector.y / vector_length(vector);
         return normalized;
     }
-    return vector;
+    return vector; // should we return null here instead
 }
 
-float vector_dot(Vector2f a, Vector2f b)
+float vector_dot(const Vector2f a, const Vector2f b)
 {
     return a.x * b.x + a.y * b.y;
 }
 
-float vector_cross(Vector2f a, Vector2f b)
+float vector_cross(const Vector2f a, const Vector2f b)
 {
     return a.x * b.y - a.y * b.x;
 }
 
-float vector_angle(Vector2f a, Vector2f b)
+float vector_angle(const Vector2f a, const Vector2f b)
 {
     Vector2f normalized_a = vector_normalize(a);
     Vector2f normalized_b = vector_normalize(b);
