@@ -1,9 +1,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <stdint.h>
 #include <limits.h>
+#include <math.h>
 
 #define ARENA_SIZE 1024
 #define MAX_GAMEOBJECTS 5
@@ -11,24 +13,23 @@
 #include "entities/types.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
+#include "utils/vector.h"
 #include "gamestate.h"
 #include "components/texture.h"
 #include "components/animation.h"
 #include "components/collision.h"
 #include "ui/hud.h"
 #include "entities/gameobject.h"
-#include "entities/pickups/coin.h"
 #include "entities/player.h"
+#include "entities/pickups/coin.h"
 #include "scenes/scene.h"
 
 // TODO - Implement sound
-//      - Implement collision detection (coin collection with sound)
 //      - Create main menu
-//      - Implement vector2 struct and use within player movement code
 //      - Add more components to hud, always render this, separate out fps to debug only
 //          - if we arena allocate it, it will get reallocated when scenes change, probably bad, unless we can store away the data 
 //          - player score, lives remaining, etc. needs to persist across scene change
-//      - Extra credit: make editor
+//      - Extra credit: make editor with IMGUI
 
 Arena arena;
 Scene *current_scene;
@@ -99,6 +100,8 @@ int handle_events()
                     break;
             }
         }
+
+        // TODO - do i need a loop here or can i just pass the user input into the update_and_render function
         for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
             GameObject *obj = current_scene->gameobjects[i];
             if (obj != NULL && obj->components & CONTROLLER && obj->alive) {

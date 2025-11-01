@@ -23,8 +23,7 @@ typedef struct Player {
     Direction direction;
     Action action;
     Collision collision;
-    float prev_x;
-    float prev_y;
+    Vector2f prev_position;
 
 } Player;
 
@@ -33,8 +32,8 @@ void player_render(GameObject *gameobject)
 {
     Player *player = (Player *)gameobject;
 
-    texture_render_clipped(player->spritesheets[player->action][player->direction], (int)player->base.pos_x,
-                 (int)player->base.pos_y, player->animation.stencil);
+    texture_render_clipped(player->spritesheets[player->action][player->direction], (int)player->base.position.x,
+                 (int)player->base.position.y, player->animation.stencil);
 }
 
 void player_render_collision(GameObject *gameobject) {
@@ -44,38 +43,40 @@ void player_render_collision(GameObject *gameobject) {
 
 void player_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
 {
-    Player *player = (Player *)gameobject;
-    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        GameObject *obj = gameobjects[i];
-        if (obj != NULL && obj->type != PLAYER && obj->solid && obj->components & COLLISION) {
-            switch (obj->type) {
-                case COIN: {
-                    Coin *coin = (Coin *)obj;
-                    if (collision_detect(player->collision.bounds, coin->collision.bounds)) {
-                        // TODO - play sound, increment coin count on hud
-                        coin->base.alive = 0;
-                    }
-                } break;
-                case PLAYER:
-                    break;
-                case BLOCK:
-                    break;
-            }
-        }
-    }
+    //Player *player = (Player *)gameobject;
+    //for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+    //    GameObject *obj = gameobjects[i];
+    //    if (obj != NULL && obj->type != PLAYER && obj->solid && obj->components & COLLISION) {
+    //        switch (obj->type) {
+    //            case COIN: {
+    //                Coin *coin = (Coin *)obj;
+    //                if (collision_detect(player->collision.bounds, coin->collision.bounds)) {
+    //                    // TODO - play sound, increment coin count on hud
+    //                    coin->alive = 0;
+    //                }
+    //            } break;
+    //            case PLAYER:
+    //                break;
+    //            case BLOCK:
+    //                break;
+    //        }
+    //    }
+    //}
 }
 
 void player_move(Player *player, float delta_time)
 {
     // store away previous position for collision to revert if necessary
-    player->prev_x = player->base.pos_x;
-    player->prev_y = player->base.pos_y;
+    player->prev_position.x = player->base.position.x;
+    player->prev_position.y = player->base.position.y;
 
-    player->base.pos_x += player->base.vel_x * player->base.speed * delta_time;
-    player->base.pos_y += player->base.vel_y * player->base.speed * delta_time;
+    player->base.velocity = vector_normalize(player->base.velocity);
 
-    player->collision.bounds.x = player->base.pos_x;
-    player->collision.bounds.y = player->base.pos_y;
+    player->base.position.x += player->base.velocity.x * player->base.speed * delta_time;
+    player->base.position.y += player->base.velocity.y * player->base.speed * delta_time;
+
+    player->collision.bounds.x = player->base.position.x;
+    player->collision.bounds.y = player->base.position.y;
 }
 
 void player_update(GameObject *gameobject, float delta_time, int current_frame)
@@ -106,42 +107,42 @@ void player_handle_events(GameObject *gameobject, SDL_Event *e)
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
             player->direction = LEFT;
-            player->base.vel_x = -1.f;
+            player->base.velocity.x = -1.f;
         }
         if (key == SDLK_d) {
             player->direction = RIGHT;
-            player->base.vel_x = 1.f;
+            player->base.velocity.y = 1.f;
         }
         if (key == SDLK_w) {
             player->direction = BACK;
-            player->base.vel_y = -1.f;
+            player->base.velocity.x = -1.f;
         }
         if (key == SDLK_s) {
             player->direction = FRONT;
-            player->base.vel_y = 1.f;
+            player->base.velocity.y = 1.f;
         }
     }
     if (e->type == SDL_KEYUP && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
         if (key == SDLK_a) {
-            if (player->base.vel_x < 0) {
-                player->base.vel_x = 0;
+            if (player->base.velocity.x < 0) {
+                player->base.velocity.x = 0;
             }
         }
         if (key == SDLK_d) {
-            if (player->base.vel_x > 0) {
-                player->base.vel_x = 0;
+            if (player->base.velocity.x > 0) {
+                player->base.velocity.x = 0;
             }
         }
         if (key == SDLK_w) {
-            player->base.vel_y = 0;
+            player->base.velocity.y = 0;
         }
         if (key == SDLK_s) {
-            player->base.vel_y = 0;
+            player->base.velocity.y = 0;
         }
     }
 
-    if (player->base.vel_x == 0 && player->base.vel_y == 0) {
+    if (player->base.velocity.x == 0 && player->base.velocity.y == 0) {
         player->action = IDLE;
     } else {
         player->action = WALKING;
@@ -183,11 +184,10 @@ void player_create(Player *player)
     player->base.type             = PLAYER;
     player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
 
-    player->base.pos_x            = gamestate.internal_screen_width / 2;
-    player->base.pos_y            = gamestate.internal_screen_height / 2;
+    player->base.position         = vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2);
+    player->prev_position         = vector_create_zero();
+    player->base.velocity         = vector_create_zero();
     player->base.speed            = 100.f;
-    player->base.vel_x            = 0;
-    player->base.vel_y            = 0;
     player->base.alive            = 1;
     player->base.solid            = 1;
     player->base.update           = player_update;
@@ -197,12 +197,10 @@ void player_create(Player *player)
     player->base.handle_events    = player_handle_events;
     player->base.destroy          = player_destroy;
 
-    player->prev_x                = 0;
-    player->prev_y                = 0;
     player->animation             = animation_create();
     player->direction             = FRONT;
     player->action                = IDLE;
-    player->collision             = collision_create(player->base.pos_x, player->base.pos_y, 8, 8);
+    player->collision             = collision_create(player->base.position.x, player->base.position.y, 8, 8);
 
     player_load_spritesheets(player);
 }

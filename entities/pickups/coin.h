@@ -12,7 +12,7 @@ typedef struct Coin {
 void coin_render(GameObject *gameobject)
 {
     Coin *coin = (Coin *)gameobject;
-    texture_render_clipped(coin->spritesheet, (int)coin->base.pos_x, (int)coin->base.pos_y, coin->animation.stencil);
+    texture_render_clipped(coin->spritesheet, (int)coin->base.position.x, (int)coin->base.position.y, coin->animation.stencil);
 }
 
 void coin_render_collision(GameObject *gameobject)
@@ -23,7 +23,13 @@ void coin_render_collision(GameObject *gameobject)
 
 void coin_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
 {
+    Coin *coin = (Coin *)gameobject;
+    Player *player = (Player *)gameobjects[0];
 
+    if (collision_detect(coin->collision.bounds, player->collision.bounds)) {
+        // TODO - play sound
+        coin->base.alive = 0;
+    }
 }
 
 void coin_update(GameObject *gameobject, float delta_time, int current_frame)
@@ -48,11 +54,9 @@ void coin_create(Coin *coin)
     coin->base.type             = COIN;
     coin->base.components       = COLLISION | TEXTURE | ANIMATION;
 
-    coin->base.pos_x            = (gamestate.internal_screen_width / 2) + 10;
-    coin->base.pos_y            = (gamestate.internal_screen_height / 2) + 10;
+    coin->base.position         = vector_create(((gamestate.internal_screen_width / 2) + 10), ((gamestate.internal_screen_height / 2) + 10));
     coin->base.speed            = 0;
-    coin->base.vel_x            = 0;
-    coin->base.vel_y            = 0;
+    coin->base.velocity         = vector_create_zero();
     coin->base.alive            = 1;
     coin->base.solid            = 1;
     coin->base.update           = coin_update;
@@ -63,5 +67,5 @@ void coin_create(Coin *coin)
 
     coin->animation             = animation_create();
     coin->spritesheet           = texture_create("resources/spritesheets/coin.png");
-    coin->collision             = collision_create(coin->base.pos_x, coin->base.pos_y, 8, 8);
+    coin->collision             = collision_create(coin->base.position.x, coin->base.position.y, 8, 8);
 }

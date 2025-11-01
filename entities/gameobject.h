@@ -10,9 +10,9 @@ enum ComponentsMask {
 
 typedef struct GameObject {
     EntityType type;
-    float pos_x, pos_y;
+    Vector2f position;
+    Vector2f velocity;
     float speed;
-    float vel_x, vel_y;
     uint8_t components;
     unsigned char alive;
     unsigned char solid;
