@@ -5,6 +5,11 @@ typedef struct {
     float y;
 } Vector2f;
 
+typedef struct {
+    int x;
+    int y;
+} Vector2i;
+
 Vector2f vector_create_zero()
 {
     Vector2f vector;
@@ -19,6 +24,14 @@ Vector2f vector_create(const float x, const float y)
     vector.x = x;
     vector.y = y;
     return vector;
+}
+
+Vector2i vector_ftoi(Vector2f float_vector)
+{
+    Vector2i int_vector;
+    int_vector.x = (int)float_vector.x;
+    int_vector.y = (int)float_vector.y;
+    return int_vector;
 }
 
 float vector_length(const Vector2f vector)

@@ -10,7 +10,9 @@ typedef struct Coin {
 void coin_render(GameObject *gameobject)
 {
     Coin *coin = (Coin *)gameobject;
-    texture_render_clipped(coin->spritesheet, (int)coin->base.position.x, (int)coin->base.position.y, coin->animation.stencil);
+    texture_render_clipped(coin->spritesheet,
+                           vector_ftoi(coin->base.position),
+                           coin->animation.stencil);
 }
 
 void coin_render_collision(GameObject *gameobject)

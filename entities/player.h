@@ -30,8 +30,9 @@ void player_render(GameObject *gameobject)
 {
     Player *player = (Player *)gameobject;
 
-    texture_render_clipped(player->spritesheets[player->action][player->direction], (int)player->base.position.x,
-                 (int)player->base.position.y, player->animation.stencil);
+    texture_render_clipped(player->spritesheets[player->action][player->direction],
+                           vector_ftoi(player->base.position),
+                           player->animation.stencil);
 }
 
 void player_render_collision(GameObject *gameobject) {

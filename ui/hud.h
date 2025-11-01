@@ -3,13 +3,13 @@ typedef struct Hud {
     TTF_Font *font;
     SDL_Texture *fps_texture;
     SDL_Color color;
-    int fps_pos_x, fps_pos_y;
+    Vector2f position;
 
 } Hud;
 
 void hud_render(Hud *hud)
 {
-    texture_render(hud->fps_texture, hud->fps_pos_x, hud->fps_pos_y);
+    texture_render(hud->fps_texture, vector_ftoi(hud->position));
 }
 
 void hud_update(Hud *hud, float fps)
@@ -26,8 +26,7 @@ void hud_update(Hud *hud, float fps)
 
 void hud_create(Hud *hud)
 {
-    hud->fps_pos_x   = 0;
-    hud->fps_pos_y   = 0;
+    hud->position    = vector_create_zero();
     hud->color.r     = 0;
     hud->color.g     = 0;
     hud->color.b     = 0;

@@ -29,7 +29,7 @@
 //      - Add more components to hud, always render this, separate out fps to debug only
 //          - if we arena allocate it, it will get reallocated when scenes change, probably bad, unless we can store away the data 
 //          - player score, lives remaining, etc. needs to persist across scene change
-//      - Extra credit: make editor with IMGUI
+//      - Extra credit: make editor
 
 Arena arena;
 Scene *current_scene;
@@ -101,14 +101,8 @@ int handle_events()
             }
         }
 
-        // TODO - do i need a loop here or can i just pass the user input into the update_and_render function
-        for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-            GameObject *obj = current_scene->gameobjects[i];
-            if (obj != NULL && obj->components & CONTROLLER && obj->alive) {
-                obj->handle_events(obj, &e);
-            }
-        }
-
+        GameObject *player = current_scene->gameobjects[0];
+        player->handle_events(player, &e);
     }
     return quit;
 }
