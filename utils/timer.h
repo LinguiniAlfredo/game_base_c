@@ -1,8 +1,8 @@
 typedef struct {
     uint64_t start_ticks;
     uint64_t paused_ticks;
-    int paused;
-    int started;
+    int      paused;
+    int      started;
 } Timer;
 
 void timer_start(Timer* timer) 

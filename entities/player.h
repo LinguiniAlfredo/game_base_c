@@ -1,8 +1,8 @@
 #pragma once
 
 typedef enum {
-    FRONT,
-    BACK,
+    DOWN,
+    UP,
     LEFT,
     RIGHT,
     DIRCOUNT
@@ -15,16 +15,14 @@ typedef enum {
     ACTIONCOUNT
 } Action;
 
-typedef struct {
-    GameObject base;
-
+typedef struct Player {
+    GameObject   base;
     SDL_Texture *spritesheets[ACTIONCOUNT][DIRCOUNT];
-    Animation animation;
-    Direction direction;
-    Action action;
-    Collision collision;
-    Vector2f prev_position;
-
+    Animation    animation;
+    Direction    direction;
+    Action       action;
+    Collision    collision;
+    Vector2f     prev_position;
 } Player;
 
 
@@ -114,26 +112,20 @@ void player_handle_events(GameObject *gameobject, SDL_Event *e)
             player->base.velocity.x = 1.f;
         }
         if (key == SDLK_w) {
-            player->direction = BACK;
+            player->direction = UP;
             player->base.velocity.y = -1.f;
         }
         if (key == SDLK_s) {
-            player->direction = FRONT;
+            player->direction = DOWN;
             player->base.velocity.y = 1.f;
         }
     }
     if (e->type == SDL_KEYUP && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
-        if (key == SDLK_a) {
+        if (key == SDLK_a || key == SDLK_d) {
             player->base.velocity.x = 0;
         }
-        if (key == SDLK_d) {
-            player->base.velocity.x = 0;
-        }
-        if (key == SDLK_w) {
-            player->base.velocity.y = 0;
-        }
-        if (key == SDLK_s) {
+        if (key == SDLK_w || key == SDLK_s) {
             player->base.velocity.y = 0;
         }
     }
@@ -154,7 +146,6 @@ void player_destroy(GameObject *gameobject)
             SDL_DestroyTexture(player->spritesheets[i][j]);
         }
     }
-    animation_destroy(&player->animation);
 }
 
 void player_load_spritesheets(Player *player)
@@ -195,9 +186,9 @@ void player_create(Player *player)
     player->prev_position         = vector_create_zero();
 
     player->animation             = animation_create();
-    player->direction             = FRONT;
+    player->direction             = DOWN;
     player->action                = IDLE;
-    player->collision             = collision_create(player->base.position.x, player->base.position.y, 8, 8);
+    player->collision             = collision_create(player->base.position, 8, 8);
 
     player_load_spritesheets(player);
 }

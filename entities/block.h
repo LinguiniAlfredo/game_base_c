@@ -1,7 +1,7 @@
 #pragma once
 
 typedef struct Block {
-    GameObject base;
+    GameObject   base;
     SDL_Texture *spritesheet;
 } Block;
 
@@ -9,11 +9,9 @@ void block_create(Block *block)
 {
     block->base.components       = COLLISION | TEXTURE;
 
-    block->base.pos_x            = (gamestate.internal_screen_width / 2) - 10;
-    block->base.pos_y            = (gamestate.internal_screen_height / 2);
+    block->base.position         = vector_create((gamestate.internal_screen_width / 2) - 10, (gamestate.internal_screen_height / 2) - 10);
     block->base.speed            = 0;
-    block->base.vel_x            = 0;
-    block->base.vel_y            = 0;
+    block->base.velocity         = vector_create_zero();
     block->base.alive            = 1;
     block->base.solid            = 1;
     block->base.update           = coin_update;
@@ -24,5 +22,5 @@ void block_create(Block *block)
 
     block->animation             = animation_create();
     block->spritesheet           = texture_create("resources/spritesheets/coin.png");
-    block->collision             = collision_create(coin->base.pos_x, coin->base.pos_y, 8, 8);
+    block->collision             = collision_create(coin->base.position.x, coin->base.position.y, 8, 8);
 }

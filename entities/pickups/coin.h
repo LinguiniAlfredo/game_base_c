@@ -1,12 +1,10 @@
 #pragma once
 
 typedef struct Coin {
-    GameObject base;
-
+    GameObject   base;
     SDL_Texture *spritesheet;
-    Animation animation;
-    Collision collision;
-
+    Animation    animation;
+    Collision    collision;
 } Coin;
 
 void coin_render(GameObject *gameobject)
@@ -54,7 +52,7 @@ void coin_create(Coin *coin)
     coin->base.type             = COIN;
     coin->base.components       = COLLISION | TEXTURE | ANIMATION;
 
-    coin->base.position         = vector_create(((gamestate.internal_screen_width / 2) + 10), ((gamestate.internal_screen_height / 2) + 10));
+    coin->base.position         = vector_create((gamestate.internal_screen_width / 2) + 10, (gamestate.internal_screen_height / 2) + 10);
     coin->base.speed            = 0;
     coin->base.velocity         = vector_create_zero();
     coin->base.alive            = 1;
@@ -67,5 +65,5 @@ void coin_create(Coin *coin)
 
     coin->animation             = animation_create();
     coin->spritesheet           = texture_create("resources/spritesheets/coin.png");
-    coin->collision             = collision_create(coin->base.position.x, coin->base.position.y, 8, 8);
+    coin->collision             = collision_create(coin->base.position, 8, 8);
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#define MAX_GAMEOBJECTS 5
-
 typedef enum Level {
     MAINMENU,
     LEVEL1,
@@ -11,11 +9,12 @@ typedef enum Level {
 
 typedef struct Scene {
     GameObject *gameobjects[MAX_GAMEOBJECTS];
-    Level level;
+    Level       level;
 } Scene;
 
 void scene_create(Scene *scene, Level level)
 {
+    // TODO - load levels intelligently from map file or something
     switch (level) {
         case MAINMENU:
             break;
@@ -41,8 +40,10 @@ void scene_create(Scene *scene, Level level)
             coin_create(coin);
             scene->gameobjects[0] = (GameObject *)coin;
         } break;
+
         case LEVEL3:
             break;
+
         default:
             break;
     }

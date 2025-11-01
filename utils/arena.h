@@ -1,16 +1,15 @@
 #pragma once
 
 typedef struct {
-    char* buffer;
+    char  *buffer;
     size_t size;
     size_t offset;
 } Arena;
 
 void arena_create(Arena* arena, size_t size)
 {
-    printf("creating arena...\n");
     arena->buffer = malloc(size);
-    arena->size = size;
+    arena->size   = size;
     arena->offset = 0;
 }
 

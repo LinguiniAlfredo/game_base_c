@@ -1,11 +1,10 @@
 #pragma once
 
-typedef struct Animation {
-    int num_frames;
-    int playing;
-    int duration;
+typedef struct {
+    int      num_frames;
+    int      playing;
+    int      duration;
     SDL_Rect stencil;
-
 } Animation;
 
 void animation_start(Animation *animation, int num_frames)
@@ -49,12 +48,12 @@ Animation animation_create() // TODO - parameterize animation properties
     Animation animation;
     
     animation.num_frames = 4;
-    animation.playing = 0;
-    animation.duration = 0;
-    animation.stencil.x = 0;
-    animation.stencil.y = 0;
-    animation.stencil.w = 8;
-    animation.stencil.h = 8;
+    animation.playing    = 0;
+    animation.duration   = 0;
+    animation.stencil.x  = 0;
+    animation.stencil.y  = 0;
+    animation.stencil.w  = 8;
+    animation.stencil.h  = 8;
 
     return animation;
 }
