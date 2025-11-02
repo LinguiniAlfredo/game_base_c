@@ -10,7 +10,8 @@ typedef enum {
 
 typedef struct Gamestate {
     SDL_Renderer *renderer;
-    Arena         arena;
+    Arena         ui_arena;
+    Arena         entity_arena;
     Gamemode      mode;
     int           debug;
     int           gameover;

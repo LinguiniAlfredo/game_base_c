@@ -20,13 +20,13 @@ void scene_create(Scene *scene, Level level)
             break;
 
         case LEVEL1: {
-            Player *player = (Player *)arena_alloc(&gamestate.arena, sizeof(Player));
+            Player *player = (Player *)arena_alloc(&gamestate.entity_arena, sizeof(Player));
             if (player == NULL)
                 printf("Unable to allocate player\n");
             player_create(player);
             scene->gameobjects[0] = (GameObject *)player;
 
-            Coin *coin = (Coin *)arena_alloc(&gamestate.arena, sizeof(Coin));
+            Coin *coin = (Coin *)arena_alloc(&gamestate.entity_arena, sizeof(Coin));
             if (coin == NULL)
                 printf("Unable to allocate coin\n");
             coin_create(coin);
@@ -34,7 +34,7 @@ void scene_create(Scene *scene, Level level)
         } break;
 
         case LEVEL2: {
-            Coin *coin = (Coin *)arena_alloc(&gamestate.arena, sizeof(Coin));
+            Coin *coin = (Coin *)arena_alloc(&gamestate.entity_arena, sizeof(Coin));
             if (coin == NULL)
                 printf("Unable to allocate coin\n");
             coin_create(coin);
@@ -60,10 +60,10 @@ void scene_destroy(Scene *scene)
 
 void scene_change(Scene *scene, Level level)
 {
-    arena_reset(&gamestate.arena);
+    arena_reset(&gamestate.entity_arena);
     scene_destroy(scene);
 
-    scene = (Scene *)arena_alloc(&gamestate.arena, sizeof(Scene));
+    scene = (Scene *)arena_alloc(&gamestate.entity_arena, sizeof(Scene));
     if (scene == NULL)
         printf("Unable to allocate scene\n");
     scene_create(scene, level);

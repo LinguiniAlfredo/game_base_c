@@ -33,7 +33,8 @@
 //          - player score, lives remaining, etc. needs to persist across scene change
 //      - Extra credit: make editor
 
-Arena      arena;
+Arena      ui_arena;
+Arena      entity_arena;
 Scene      *current_scene;
 MainMenu   *main_menu;
 PauseMenu  *pause_menu;
@@ -220,8 +221,11 @@ void close_app()
         }
     }
 
-    arena_reset(&gamestate.arena);
-    arena_destroy(&gamestate.arena);
+    arena_reset(&gamestate.ui_arena);
+    arena_destroy(&gamestate.ui_arena);
+
+    arena_reset(&gamestate.entity_arena);
+    arena_destroy(&gamestate.entity_arena);
 
     SDL_DestroyRenderer(gamestate.renderer);
     SDL_DestroyWindow(window);
@@ -235,18 +239,18 @@ void close_app()
 
 int main()
 {
-    gamestate.arena = arena;
-    arena_create(&gamestate.arena, ARENA_SIZE);
+    gamestate.ui_arena     = ui_arena;
+    gamestate.entity_arena = entity_arena;
+    arena_create(&gamestate.ui_arena, ARENA_SIZE);
+    arena_create(&gamestate.entity_arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-        // load menus into memory
-        pause_menu = (PauseMenu *)arena_alloc(&gamestate.arena, sizeof(PauseMenu));
+        pause_menu = (PauseMenu *)arena_alloc(&gamestate.ui_arena, sizeof(PauseMenu));
         if (pause_menu == NULL)
             printf("Unable to load pause menu\n");
         pause_create(pause_menu);
 
-        // load scene into memory
-        current_scene = (Scene *)arena_alloc(&gamestate.arena, sizeof(Scene));
+        current_scene = (Scene *)arena_alloc(&gamestate.entity_arena, sizeof(Scene));
         if (current_scene == NULL)
             printf("Unable to allocate scene\n");
         scene_create(current_scene, LEVEL1);
