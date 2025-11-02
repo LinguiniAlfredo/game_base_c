@@ -5,6 +5,7 @@ typedef struct MenuItem {
     TTF_Font    *font;
     SDL_Texture *label;
     Vector2f     position;
+    SDL_Rect     bounds;
     void (*action)();
 } MenuItem;
 
@@ -14,9 +15,8 @@ typedef struct MainMenu {
 
 typedef struct PauseMenu {
     MenuItem title;
-    MenuItem return_to_game;
-    MenuItem quit_to_main;
-    MenuItem exit_game;
+    MenuItem menu_items[3];
+    int      selected_index;
 } PauseMenu;
 
 void return_to_game() { gamestate.mode = GAME; }
@@ -35,7 +35,12 @@ void main_menu_handle_events(MainMenu *main_menu, SDL_Event *e)
 
 void main_menu_render(MainMenu *main_menu)
 {
+    SDL_SetRenderDrawColor(gamestate.renderer, 0xF5, 0xF5, 0xF5, 0xFF);
+    SDL_RenderClear(gamestate.renderer);
 
+    // TODO - render main menu
+ 
+    SDL_RenderPresent(gamestate.renderer);
 }
 
 void pause_create(PauseMenu *pause_menu)
@@ -45,6 +50,7 @@ void pause_create(PauseMenu *pause_menu)
     int screen_half_width  = gamestate.internal_screen_width / 2;
     int screen_half_height = gamestate.internal_screen_height / 2;
 
+    pause_menu->selected_index = 0;
     pause_menu->title.color.r  = 0;
     pause_menu->title.color.g  = 0;
     pause_menu->title.color.b  = 0;
@@ -53,37 +59,54 @@ void pause_create(PauseMenu *pause_menu)
     pause_menu->title.label    = texture_create_text("---paused---", pause_menu->title.font, pause_menu->title.color, 5, 5);
     pause_menu->title.position = vector_create(screen_half_width - 35, screen_half_height - 60);
 
-    pause_menu->return_to_game.color.r  = 0;
-    pause_menu->return_to_game.color.g  = 0;
-    pause_menu->return_to_game.color.b  = 0;
-    pause_menu->return_to_game.color.a  = 255;
-    pause_menu->return_to_game.font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
-    pause_menu->return_to_game.label    = texture_create_text("return to game", pause_menu->return_to_game.font, pause_menu->return_to_game.color, 5, 5);
-    pause_menu->return_to_game.position = vector_create(screen_half_width + 40, screen_half_height + 20);
-    pause_menu->return_to_game.action   = return_to_game;
+    for (int i = 0; i < 3; i++) {
+        pause_menu->menu_items[i].color.r  = 0;
+        pause_menu->menu_items[i].color.g  = 0;
+        pause_menu->menu_items[i].color.b  = 0;
+        pause_menu->menu_items[i].color.a  = 255;
+        pause_menu->menu_items[i].font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
+        pause_menu->menu_items[i].position = vector_create(screen_half_width + 40, screen_half_height + 20 * (i+1));
+        switch (i) {
+            case 0:
+                pause_menu->menu_items[i].action = return_to_game;
+                pause_menu->menu_items[i].label  = texture_create_text("return to game", pause_menu->menu_items[i].font, pause_menu->menu_items[i].color, 5, 5);
+                break;
+            case 1:
+                pause_menu->menu_items[i].action = quit_to_main;
+                pause_menu->menu_items[i].label  = texture_create_text("quit to main", pause_menu->menu_items[i].font, pause_menu->menu_items[i].color, 5, 5);
+                break;
+            case 2:
+                pause_menu->menu_items[i].action = exit_game;
+                pause_menu->menu_items[i].label  = texture_create_text("exit game", pause_menu->menu_items[i].font, pause_menu->menu_items[i].color, 5, 5);
+                break;
+                
+        }
 
-    pause_menu->quit_to_main.color.r    = 0;
-    pause_menu->quit_to_main.color.g    = 0;
-    pause_menu->quit_to_main.color.b    = 0;
-    pause_menu->quit_to_main.color.a    = 255;
-    pause_menu->quit_to_main.font       = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
-    pause_menu->quit_to_main.label      = texture_create_text("quit to main menu", pause_menu->quit_to_main.font, pause_menu->quit_to_main.color, 5, 5);
-    pause_menu->quit_to_main.position   = vector_create(screen_half_width + 40, screen_half_height + 40);
-    pause_menu->quit_to_main.action     = quit_to_main;
-
-    pause_menu->exit_game.color.r       = 0;
-    pause_menu->exit_game.color.g       = 0;
-    pause_menu->exit_game.color.b       = 0;
-    pause_menu->exit_game.color.a       = 255;
-    pause_menu->exit_game.font          = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
-    pause_menu->exit_game.label         = texture_create_text("exit game", pause_menu->exit_game.font, pause_menu->exit_game.color, 5, 5);
-    pause_menu->exit_game.position      = vector_create(screen_half_width + 40, screen_half_height + 60);
-    pause_menu->exit_game.action        = exit_game;
+        // TODO - make into utility function to get size of texture
+        int label_w = 0;
+        int label_h = 0;
+        SDL_QueryTexture(pause_menu->menu_items[i].label, NULL, NULL, &label_w, &label_h);
+        SDL_Rect rect = { pause_menu->menu_items[i].position.x, pause_menu->menu_items[i].position.y, label_w, label_h };
+        pause_menu->menu_items[i].bounds = rect;
+    }
 }
 
 void pause_handle_events(PauseMenu *pause_menu, SDL_Event *e)
 {
-
+    if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
+        SDL_Keycode key = e->key.keysym.sym;
+        switch (key) {
+            case SDLK_w:
+                pause_menu->selected_index = (pause_menu->selected_index - 1) % 3;
+                break;
+            case SDLK_s:
+                pause_menu->selected_index = (pause_menu->selected_index + 1) % 3;
+                break;
+            case SDLK_RETURN:
+                pause_menu->menu_items[pause_menu->selected_index].action();
+                break;
+        }
+    }
 }
 
 void pause_render(PauseMenu *pause_menu)
@@ -92,9 +115,11 @@ void pause_render(PauseMenu *pause_menu)
     SDL_RenderClear(gamestate.renderer);
 
     texture_render(pause_menu->title.label, vector_ftoi(pause_menu->title.position));
-    texture_render(pause_menu->return_to_game.label, vector_ftoi(pause_menu->return_to_game.position));
-    texture_render(pause_menu->quit_to_main.label, vector_ftoi(pause_menu->quit_to_main.position));
-    texture_render(pause_menu->exit_game.label, vector_ftoi(pause_menu->exit_game.position));
+    for (int i = 0; i < 3; i++) {
+        texture_render(pause_menu->menu_items[i].label, vector_ftoi(pause_menu->menu_items[i].position));
+    }
+    SDL_SetRenderDrawColor(gamestate.renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(gamestate.renderer, &pause_menu->menu_items[pause_menu->selected_index].bounds);
 
     SDL_RenderPresent(gamestate.renderer);
 }
@@ -103,10 +128,9 @@ void pause_destroy(PauseMenu *pause_menu)
 {
     TTF_CloseFont(pause_menu->title.font);
     SDL_DestroyTexture(pause_menu->title.label);
-    TTF_CloseFont(pause_menu->return_to_game.font);
-    SDL_DestroyTexture(pause_menu->return_to_game.label);
-    TTF_CloseFont(pause_menu->quit_to_main.font);
-    SDL_DestroyTexture(pause_menu->quit_to_main.label);
-    TTF_CloseFont(pause_menu->exit_game.font);
-    SDL_DestroyTexture(pause_menu->exit_game.label);
+
+    for (int i = 0; i < 3; i++) {
+        TTF_CloseFont(pause_menu->menu_items[i].font);
+        SDL_DestroyTexture(pause_menu->menu_items[i].label);
+    }
 }

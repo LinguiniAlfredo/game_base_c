@@ -94,16 +94,13 @@ void handle_events()
         if (e.type == SDL_KEYDOWN) {
             switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    gamestate.mode = QUIT;
+                    toggle_paused();
                     break;
                 case SDLK_1:
                     scene_change(current_scene, LEVEL1);
                     break;
                 case SDLK_2:
                     scene_change(current_scene, LEVEL2);
-                    break;
-                case SDLK_TAB:
-                    toggle_paused();
                     break;
                 case SDLK_F1:
                     toggle_debug();
