@@ -22,6 +22,7 @@ typedef struct PauseMenu {
 } PauseMenu;
 
 void play_game() {
+    // scene_load(scene, level);
     gamestate.mode = GAME;
 }
 void return_to_game() { gamestate.mode = GAME; }
@@ -65,14 +66,6 @@ void main_menu_create(MainMenu *main_menu)
     }
 }
 
-void main_menu_alloc(MainMenu **main_menu)
-{
-    *main_menu = (MainMenu *)arena_alloc(&gamestate.arena, UI, sizeof(MainMenu));
-    if (*main_menu == NULL)
-        printf("Unable to load main menu\n");
-    main_menu_create(*main_menu);
-}
-
 void pause_create(PauseMenu *pause_menu)
 {
     int screen_half_width  = gamestate.internal_screen_width / 2;
@@ -114,14 +107,6 @@ void pause_create(PauseMenu *pause_menu)
         SDL_Rect rect = { pause_menu->menu_items[i].position.x - 2.5, pause_menu->menu_items[i].position.y - 2.5, label_size.x + 5, label_size.y + 5 };
         pause_menu->menu_items[i].bounds = rect;
     }
-}
-
-void pause_menu_alloc(PauseMenu **pause_menu)
-{
-    *pause_menu = (PauseMenu *)arena_alloc(&gamestate.arena, UI, sizeof(PauseMenu));
-    if (*pause_menu == NULL)
-        printf("Unable to load pause menu\n");
-    pause_create(*pause_menu);
 }
 
 // TODO - create global menu_handle_events that takes in number of menu items that can be used for any type of menu

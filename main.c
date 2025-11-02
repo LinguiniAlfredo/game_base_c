@@ -20,6 +20,7 @@
 #include "components/collision.h"
 #include "ui/hud.h"
 #include "ui/menu.h"
+#include "ui/ui.h"
 #include "entities/gameobject.h"
 #include "entities/player.h"
 #include "entities/pickups/coin.h"
@@ -31,8 +32,7 @@
 //      - Extra credit: make editor
 
 Scene      *current_scene;
-MainMenu   *main_menu;
-PauseMenu  *pause_menu;
+Ui         *ui;
 SDL_Window *window = NULL;
 
 int initialize()
@@ -111,7 +111,7 @@ void handle_events()
 
         switch (gamestate.mode) {
             case MENU:
-                main_menu_handle_events(main_menu, &e);
+                main_menu_handle_events(ui->main_menu, &e);
                 break;
             case GAME: {
                 GameObject *player = current_scene->gameobjects[0];
@@ -119,7 +119,7 @@ void handle_events()
                     player->handle_events(player, &e);
             } break;
             case PAUSED: {
-                pause_handle_events(pause_menu, &e);
+                pause_handle_events(ui->pause_menu, &e);
             } break;
             case EDIT:
                 break;
@@ -127,7 +127,6 @@ void handle_events()
                 break;
         }
     }
-
 }
 
 void update_and_render(float delta_time, float fps, int current_frame)
@@ -179,13 +178,13 @@ void game_loop()
 
         switch (gamestate.mode) {
             case MENU:
-                main_menu_render(main_menu);
+                main_menu_render(ui->main_menu);
                 break;
             case GAME:
                 update_and_render(delta_time, fps, current_frame);
                 break;
             case PAUSED:
-                pause_render(pause_menu);
+                pause_render(ui->pause_menu);
                 break;
             case EDIT:
                 break;
@@ -206,8 +205,7 @@ void game_loop()
 
 void close_app()
 {
-    main_menu_destroy(main_menu);
-    pause_destroy(pause_menu);
+    ui_destroy(ui);
 
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
         GameObject *obj = current_scene->gameobjects[i];
@@ -234,9 +232,11 @@ int main()
     arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-        main_menu_alloc(&main_menu);
-        pause_menu_alloc(&pause_menu);
+        // load subsystems into arena memory
+        ui_load(&ui);
         scene_load(&current_scene, LEVEL1);
+        // sound_load(&sound);
+
         game_loop();
     }
     close_app();

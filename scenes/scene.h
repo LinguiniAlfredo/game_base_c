@@ -21,22 +21,16 @@ void scene_create(Scene *scene, Level level)
 
         case LEVEL1: {
             Player *player = (Player *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Player));
-            if (player == NULL)
-                printf("Unable to allocate player\n");
             player_create(player);
             scene->gameobjects[0] = (GameObject *)player;
 
             Coin *coin = (Coin *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Coin));
-            if (coin == NULL)
-                printf("Unable to allocate coin\n");
             coin_create(coin);
             scene->gameobjects[1] = (GameObject *)coin;
         } break;
 
         case LEVEL2: {
             Coin *coin = (Coin *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Coin));
-            if (coin == NULL)
-                printf("Unable to allocate coin\n");
             coin_create(coin);
             scene->gameobjects[0] = (GameObject *)coin;
         } break;
@@ -58,7 +52,6 @@ void scene_destroy(Scene *scene)
     }
 }
 
-// must pass poitner to pointer then dereference to modify callers pointer 
 void scene_load(Scene **scene, Level level)
 {
     arena_reset_part(&gamestate.arena, ENTITY);
@@ -66,8 +59,6 @@ void scene_load(Scene **scene, Level level)
         scene_destroy(*scene);
 
     *scene = (Scene *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Scene));
-    if (*scene == NULL)
-        printf("Unable to allocate scene\n");
     scene_create(*scene, level);
 }
 
