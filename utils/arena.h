@@ -1,40 +1,87 @@
 #pragma once
 
+typedef enum {
+    UI,
+    ENTITY
+} PartitionType;
+
 typedef struct {
     char  *buffer;
     size_t size;
     size_t offset;
+} Partition;
+
+typedef struct {
+    Partition ui_partition;
+    Partition entity_partition;
 } Arena;
 
-void arena_create(Arena* arena, size_t size)
+void arena_create(Arena* arena, const size_t size)
 {
-    arena->buffer = malloc(size);
-    arena->size   = size;
-    arena->offset = 0;
+    arena->ui_partition.buffer = malloc(size);
+    arena->ui_partition.size   = size / 2;
+    arena->ui_partition.offset = 0;
+
+    arena->entity_partition.buffer = arena->ui_partition.buffer + arena->ui_partition.size;
+    arena->entity_partition.size   = size / 2;
+    arena->entity_partition.offset = 0;
 }
 
-void* arena_alloc(Arena* arena, size_t size)
+void* arena_alloc(Arena* arena, const PartitionType partition, const size_t size)
 {
-    printf("allocating arena...\n");
-    if (arena->offset + size > arena->size) {
-        printf("ran out of arena space\n");
+    size_t part_offset, part_size;
+    char*  part_buffer;
+
+    switch (partition) {
+        case UI: {
+            part_offset = arena->ui_partition.offset;
+            part_size   = arena->ui_partition.size;
+            part_buffer = arena->ui_partition.buffer;
+            arena->ui_partition.offset += size;
+            printf("allocating from ui partition\n");
+        } break;
+        case ENTITY: {
+            part_offset = arena->entity_partition.offset;
+            part_size   = arena->entity_partition.size;
+            part_buffer = arena->entity_partition.buffer;
+            arena->entity_partition.offset += size;
+            printf("allocating from entity partition\n");
+        } break;
+    }
+
+    if (part_offset + size > part_size) {
+        printf("ran out of space in partition...\n");
         return NULL;
     }
 
-    void* ptr = arena->buffer + arena->offset;
-    arena->offset += size;
-
-    return ptr;
+    return part_buffer + part_offset;
 }
 
-void arena_reset(Arena* arena) 
+void arena_reset_part(Arena* arena, const PartitionType partition) 
 {
-    printf("resetting arena...\n");
-    arena->offset = 0;
+    switch (partition) {
+        case UI:
+            printf("resetting ui partition\n");
+            arena->ui_partition.offset = 0;
+            break;
+        case ENTITY:
+            printf("resetting entity partition\n");
+            arena->entity_partition.offset = 0;
+            break;
+    }
+}
+
+void arena_reset(Arena* arena)
+{
+    printf("resetting all partitions\n");
+    arena->ui_partition.offset = 0;
+    arena->entity_partition.offset = 0;
 }
 
 void arena_destroy(Arena* arena)
-{
+{   // TODO - pointer to ui is technically pointer to entire arena
+    //        is this good? should i have a separate pointer to entire arena
     printf("destroying arena...\n");
-    free(arena->buffer);
+    free(arena->ui_partition.buffer);
 }
+

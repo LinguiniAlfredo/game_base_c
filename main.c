@@ -27,14 +27,12 @@
 #include "input/input.h"
 
 // TODO - Implement sound
-//      - Create main menu
-//      - Add more components to hud, always render this, separate out fps to debug only
-//          - if we arena allocate it, it will get reallocated when scenes change, probably bad, unless we can store away the data 
-//          - player score, lives remaining, etc. needs to persist across scene change
+//      - Create main menu / pause menu functionality
+//      - Partition arena instead of having two, for each subsystem (ui, entities, sound, etc)
+//      - HUD items, show fps in debug mode
 //      - Extra credit: make editor
 
-Arena      ui_arena;
-Arena      entity_arena;
+Arena      arena;
 Scene      *current_scene;
 MainMenu   *main_menu;
 PauseMenu  *pause_menu;
@@ -221,11 +219,8 @@ void close_app()
         }
     }
 
-    arena_reset(&gamestate.ui_arena);
-    arena_destroy(&gamestate.ui_arena);
-
-    arena_reset(&gamestate.entity_arena);
-    arena_destroy(&gamestate.entity_arena);
+    arena_reset(&gamestate.arena);
+    arena_destroy(&gamestate.arena);
 
     SDL_DestroyRenderer(gamestate.renderer);
     SDL_DestroyWindow(window);
@@ -239,18 +234,16 @@ void close_app()
 
 int main()
 {
-    gamestate.ui_arena     = ui_arena;
-    gamestate.entity_arena = entity_arena;
-    arena_create(&gamestate.ui_arena, ARENA_SIZE);
-    arena_create(&gamestate.entity_arena, ARENA_SIZE);
+    gamestate.arena = arena;
+    arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-        pause_menu = (PauseMenu *)arena_alloc(&gamestate.ui_arena, sizeof(PauseMenu));
+        pause_menu = (PauseMenu *)arena_alloc(&gamestate.arena, UI, sizeof(PauseMenu));
         if (pause_menu == NULL)
             printf("Unable to load pause menu\n");
         pause_create(pause_menu);
 
-        current_scene = (Scene *)arena_alloc(&gamestate.entity_arena, sizeof(Scene));
+        current_scene = (Scene *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Scene));
         if (current_scene == NULL)
             printf("Unable to allocate scene\n");
         scene_create(current_scene, LEVEL1);
