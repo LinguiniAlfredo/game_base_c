@@ -27,8 +27,7 @@
 #include "input/input.h"
 
 // TODO - Implement sound
-//      - Create main menu / pause menu functionality
-//      - Partition arena instead of having two, for each subsystem (ui, entities, sound, etc)
+//      - Create main menu
 //      - HUD items, show fps in debug mode
 //      - Extra credit: make editor
 

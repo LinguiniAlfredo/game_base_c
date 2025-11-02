@@ -45,8 +45,6 @@ void main_menu_render(MainMenu *main_menu)
 
 void pause_create(PauseMenu *pause_menu)
 {
-    // TODO - calculate the width/height of label textures, use that to position instead of hardcoded numbers
-    
     int screen_half_width  = gamestate.internal_screen_width / 2;
     int screen_half_height = gamestate.internal_screen_height / 2;
 
@@ -82,11 +80,8 @@ void pause_create(PauseMenu *pause_menu)
                 
         }
 
-        // TODO - make into utility function to get size of texture
-        int label_w = 0;
-        int label_h = 0;
-        SDL_QueryTexture(pause_menu->menu_items[i].label, NULL, NULL, &label_w, &label_h);
-        SDL_Rect rect = { pause_menu->menu_items[i].position.x, pause_menu->menu_items[i].position.y, label_w, label_h };
+        Vector2i label_size = texture_measure(pause_menu->menu_items[i].label);
+        SDL_Rect rect = { pause_menu->menu_items[i].position.x - 2.5, pause_menu->menu_items[i].position.y - 2.5, label_size.x + 5, label_size.y + 5 };
         pause_menu->menu_items[i].bounds = rect;
     }
 }
