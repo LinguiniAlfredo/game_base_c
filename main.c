@@ -33,9 +33,10 @@
 //          - player score, lives remaining, etc. needs to persist across scene change
 //      - Extra credit: make editor
 
-Arena arena;
-Scene *current_scene;
-
+Arena      arena;
+Scene      *current_scene;
+MainMenu   *main_menu;
+PauseMenu  *pause_menu;
 SDL_Window *window = NULL;
 
 int initialize()
@@ -89,12 +90,12 @@ void handle_events()
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT)
-            gamestate.quit = 1;
+            gamestate.mode = QUIT;
 
         if (e.type == SDL_KEYDOWN) {
             switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    gamestate.quit = 1;
+                    gamestate.mode = QUIT;
                     break;
                 case SDLK_1:
                     scene_change(current_scene, LEVEL1);
@@ -115,6 +116,7 @@ void handle_events()
 
         switch (gamestate.mode) {
             case MENU:
+                main_menu_handle_events(main_menu, &e);
                 break;
             case GAME: {
                 GameObject *player = current_scene->gameobjects[0];
@@ -122,10 +124,11 @@ void handle_events()
                     player->handle_events(player, &e);
             } break;
             case PAUSED: {
-                menu_handle_events(&e);
-                menu_render();
+                pause_handle_events(pause_menu, &e);
             } break;
-            case EDITOR:
+            case EDIT:
+                break;
+            case QUIT:
                 break;
         }
     }
@@ -173,7 +176,7 @@ void game_loop()
     timer_start(&total_timer);
     timer_start(&fps_cap_timer);
 
-    while (!gamestate.quit) {
+    while (gamestate.mode != QUIT) {
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
 
@@ -181,14 +184,17 @@ void game_loop()
 
         switch (gamestate.mode) {
             case MENU:
+                main_menu_render(main_menu);
                 break;
             case GAME:
                 update_and_render(delta_time, fps, current_frame);
                 break;
             case PAUSED:
-                menu_render();
+                pause_render(pause_menu);
                 break;
-            case EDITOR:
+            case EDIT:
+                break;
+            case QUIT:
                 break;
         }
 
@@ -205,6 +211,8 @@ void game_loop()
 
 void close_app()
 {
+    pause_destroy(pause_menu);
+
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
         GameObject *obj = current_scene->gameobjects[i];
         if (obj != NULL) {
@@ -231,6 +239,13 @@ int main()
     arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
+        // load menus into memory
+        pause_menu = (PauseMenu *)arena_alloc(&gamestate.arena, sizeof(PauseMenu));
+        if (pause_menu == NULL)
+            printf("Unable to load pause menu\n");
+        pause_create(pause_menu);
+
+        // load scene into memory
         current_scene = (Scene *)arena_alloc(&gamestate.arena, sizeof(Scene));
         if (current_scene == NULL)
             printf("Unable to allocate scene\n");

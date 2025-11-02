@@ -1,11 +1,10 @@
 #pragma once
 
 typedef struct Hud {
-    TTF_Font *font;
+    TTF_Font    *font;
     SDL_Texture *fps_texture;
-    SDL_Color color;
-    Vector2f position;
-
+    SDL_Color    color;
+    Vector2f     position;
 } Hud;
 
 void hud_render(Hud *hud)

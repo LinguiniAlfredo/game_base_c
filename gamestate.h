@@ -4,14 +4,14 @@ typedef enum {
     MENU,
     GAME,
     PAUSED,
-    EDITOR
+    EDIT,
+    QUIT
 } Gamemode;
 
 typedef struct Gamestate {
     SDL_Renderer *renderer;
     Arena         arena;
     Gamemode      mode;
-    int           quit;
     int           debug;
     int           gameover;
     int           tile_size;
@@ -27,7 +27,6 @@ typedef struct Gamestate {
 
 Gamestate gamestate = {
     .mode                   = GAME,
-    .quit                   = 0,
     .debug                  = 0,
     .gameover               = 0,
     .tile_size              = 16,
