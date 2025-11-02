@@ -30,7 +30,6 @@
 //      - HUD items, show fps in debug mode
 //      - Extra credit: make editor
 
-Arena      arena;
 Scene      *current_scene;
 MainMenu   *main_menu;
 PauseMenu  *pause_menu;
@@ -92,7 +91,9 @@ void handle_events()
         if (e.type == SDL_KEYDOWN) {
             switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    toggle_paused();
+                    if (gamestate.mode == GAME) {
+                        toggle_paused();
+                    }
                     break;
                 case SDLK_1:
                     scene_load(&current_scene, LEVEL1);
@@ -230,15 +231,12 @@ void close_app()
 
 int main()
 {
-    gamestate.arena = arena;
     arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
         main_menu_alloc(&main_menu);
         pause_menu_alloc(&pause_menu);
-
         scene_load(&current_scene, LEVEL1);
-
         game_loop();
     }
     close_app();

@@ -32,18 +32,14 @@ void exit_game()      { gamestate.mode = QUIT; }
 
 void main_menu_create(MainMenu *main_menu)
 {
-
-    int screen_half_width  = gamestate.internal_screen_width / 2;
-    int screen_half_height = gamestate.internal_screen_height / 2;
-
     main_menu->selected_index = 0;
     main_menu->title.color.r  = 0;
     main_menu->title.color.g  = 0;
     main_menu->title.color.b  = 0;
     main_menu->title.color.a  = 255;
-    main_menu->title.font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
+    main_menu->title.font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 50);
     main_menu->title.label    = texture_create_text("Game Title", main_menu->title.font, main_menu->title.color, 5, 5);
-    main_menu->title.position = vector_create(screen_half_width - 35, screen_half_height - 60);
+    main_menu->title.position = vector_create(texture_get_screen_center_x(main_menu->title.label), texture_get_screen_center_y(main_menu->title.label) - 20);
 
     for (int i = 0; i < 2; i++) {
         main_menu->menu_items[i].color.r  = 0;
@@ -51,7 +47,6 @@ void main_menu_create(MainMenu *main_menu)
         main_menu->menu_items[i].color.b  = 0;
         main_menu->menu_items[i].color.a  = 255;
         main_menu->menu_items[i].font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
-        main_menu->menu_items[i].position = vector_create(screen_half_width + 40, screen_half_height + 20 * (i+1));
         switch (i) {
             case 0:
                 main_menu->menu_items[i].action = play_game;
@@ -61,10 +56,10 @@ void main_menu_create(MainMenu *main_menu)
                 main_menu->menu_items[i].action = exit_game;
                 main_menu->menu_items[i].label  = texture_create_text("exit game", main_menu->menu_items[i].font, main_menu->menu_items[i].color, 5, 5);
                 break;
-                
         }
+        main_menu->menu_items[i].position = vector_create(texture_get_screen_center_x(main_menu->menu_items[i].label), texture_get_screen_center_y(main_menu->menu_items[i].label) + (20 * (i+1)));
 
-        Vector2i label_size = texture_measure(main_menu->menu_items[i].label);
+        Vector2i label_size = vector_ftoi(texture_measure(main_menu->menu_items[i].label));
         SDL_Rect rect = { main_menu->menu_items[i].position.x - 2.5, main_menu->menu_items[i].position.y - 2.5, label_size.x + 5, label_size.y + 5 };
         main_menu->menu_items[i].bounds = rect;
     }
@@ -88,9 +83,9 @@ void pause_create(PauseMenu *pause_menu)
     pause_menu->title.color.g  = 0;
     pause_menu->title.color.b  = 0;
     pause_menu->title.color.a  = 255;
-    pause_menu->title.font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
+    pause_menu->title.font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 15);
     pause_menu->title.label    = texture_create_text("---paused---", pause_menu->title.font, pause_menu->title.color, 5, 5);
-    pause_menu->title.position = vector_create(screen_half_width - 35, screen_half_height - 60);
+    pause_menu->title.position = vector_create(texture_get_screen_center_x(pause_menu->title.label), texture_get_screen_center_y(pause_menu->title.label) - 40);
 
     for (int i = 0; i < 3; i++) {
         pause_menu->menu_items[i].color.r  = 0;
@@ -115,7 +110,7 @@ void pause_create(PauseMenu *pause_menu)
                 
         }
 
-        Vector2i label_size = texture_measure(pause_menu->menu_items[i].label);
+        Vector2i label_size = vector_ftoi(texture_measure(pause_menu->menu_items[i].label));
         SDL_Rect rect = { pause_menu->menu_items[i].position.x - 2.5, pause_menu->menu_items[i].position.y - 2.5, label_size.x + 5, label_size.y + 5 };
         pause_menu->menu_items[i].bounds = rect;
     }
