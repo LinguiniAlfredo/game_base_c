@@ -26,7 +26,7 @@ typedef struct Gamestate {
 } Gamestate;
 
 Gamestate gamestate = {
-    .mode                   = GAME,
+    .mode                   = MENU,
     .debug                  = 0,
     .gameover               = 0,
     .tile_size              = 16,

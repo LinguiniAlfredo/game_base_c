@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <math.h>
 
-#define ARENA_SIZE 1024
+#define ARENA_SIZE 2048
 #define MAX_GAMEOBJECTS 5
 
 #include "entities/types.h"
@@ -27,7 +27,6 @@
 #include "input/input.h"
 
 // TODO - Implement sound
-//      - Create main menu
 //      - HUD items, show fps in debug mode
 //      - Extra credit: make editor
 
@@ -96,10 +95,10 @@ void handle_events()
                     toggle_paused();
                     break;
                 case SDLK_1:
-                    scene_change(current_scene, LEVEL1);
+                    scene_load(&current_scene, LEVEL1);
                     break;
                 case SDLK_2:
-                    scene_change(current_scene, LEVEL2);
+                    scene_load(&current_scene, LEVEL2);
                     break;
                 case SDLK_F1:
                     toggle_debug();
@@ -206,6 +205,7 @@ void game_loop()
 
 void close_app()
 {
+    main_menu_destroy(main_menu);
     pause_destroy(pause_menu);
 
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
@@ -234,15 +234,10 @@ int main()
     arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-        pause_menu = (PauseMenu *)arena_alloc(&gamestate.arena, UI, sizeof(PauseMenu));
-        if (pause_menu == NULL)
-            printf("Unable to load pause menu\n");
-        pause_create(pause_menu);
+        main_menu_alloc(&main_menu);
+        pause_menu_alloc(&pause_menu);
 
-        current_scene = (Scene *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Scene));
-        if (current_scene == NULL)
-            printf("Unable to allocate scene\n");
-        scene_create(current_scene, LEVEL1);
+        scene_load(&current_scene, LEVEL1);
 
         game_loop();
     }

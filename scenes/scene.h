@@ -58,14 +58,16 @@ void scene_destroy(Scene *scene)
     }
 }
 
-void scene_change(Scene *scene, Level level)
+// must pass poitner to pointer then dereference to modify callers pointer 
+void scene_load(Scene **scene, Level level)
 {
     arena_reset_part(&gamestate.arena, ENTITY);
-    scene_destroy(scene);
+    if (*scene != NULL)
+        scene_destroy(*scene);
 
-    scene = (Scene *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Scene));
-    if (scene == NULL)
+    *scene = (Scene *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Scene));
+    if (*scene == NULL)
         printf("Unable to allocate scene\n");
-    scene_create(scene, level);
+    scene_create(*scene, level);
 }
 
