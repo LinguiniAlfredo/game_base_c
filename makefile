@@ -12,3 +12,6 @@ all : $(OBJS)
 clean :
 	rm ./game
 
+count :
+	find . -type f -not -path "./.git/*" -not -path "./resources/*" -print0 | xargs -0 wc -l
+
