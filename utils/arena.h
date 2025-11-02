@@ -85,7 +85,7 @@ void arena_destroy(Arena* arena)
     free(arena->ui_partition.buffer);
 }
 
-void arena_print(Arena *arena)
+void arena_debug(Arena *arena)
 {
 
 }

@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <math.h>
 
-#define ARENA_SIZE 2048
+#define ARENA_SIZE 1024
 #define MAX_GAMEOBJECTS 5
 
 #include "entities/types.h"
@@ -28,7 +28,10 @@
 #include "input/input.h"
 
 // TODO - Implement sound
-//      - HUD items, show fps in debug mode
+//      - Debug mode shows arena memory layout and fps on-screen
+//      - Play game menu item should re-load Level1
+//      - Add hud items (lives, coins, etc.)
+//      - Add enemy type
 //      - Extra credit: make editor
 
 Scene      *current_scene;

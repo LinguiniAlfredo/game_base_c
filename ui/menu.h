@@ -12,28 +12,29 @@ typedef struct MenuItem {
 typedef struct MainMenu {
     MenuItem title;
     MenuItem menu_items[2];
-    int selected_index;
+    int      selected_index;
+    int      num_items;
 } MainMenu;
 
 typedef struct PauseMenu {
     MenuItem title;
     MenuItem menu_items[3];
     int      selected_index;
+    int      num_items;
 } PauseMenu;
 
 void play_game() {
-    // scene_load(scene, level);
+    // scene_load(scene,)
     gamestate.mode = GAME;
 }
 void return_to_game() { gamestate.mode = GAME; }
 void quit_to_main()   { gamestate.mode = MENU; }
 void exit_game()      { gamestate.mode = QUIT; }
 
-// TODO - create global menu_create function that takes in some set of parameters for the menu and creates it, removing specialized functions for each menu
-
 void main_menu_create(MainMenu *main_menu)
 {
     main_menu->selected_index = 0;
+    main_menu->num_items      = 2;
     main_menu->title.color.r  = 0;
     main_menu->title.color.g  = 0;
     main_menu->title.color.b  = 0;
@@ -42,7 +43,7 @@ void main_menu_create(MainMenu *main_menu)
     main_menu->title.label    = texture_create_text("Game Title", main_menu->title.font, main_menu->title.color, 5, 5);
     main_menu->title.position = vector_create(texture_get_screen_center_x(main_menu->title.label), texture_get_screen_center_y(main_menu->title.label) - 20);
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < main_menu->num_items; i++) {
         main_menu->menu_items[i].color.r  = 0;
         main_menu->menu_items[i].color.g  = 0;
         main_menu->menu_items[i].color.b  = 0;
@@ -68,10 +69,8 @@ void main_menu_create(MainMenu *main_menu)
 
 void pause_create(PauseMenu *pause_menu)
 {
-    int screen_half_width  = gamestate.internal_screen_width / 2;
-    int screen_half_height = gamestate.internal_screen_height / 2;
-
     pause_menu->selected_index = 0;
+    pause_menu->num_items      = 3;
     pause_menu->title.color.r  = 0;
     pause_menu->title.color.g  = 0;
     pause_menu->title.color.b  = 0;
@@ -80,13 +79,13 @@ void pause_create(PauseMenu *pause_menu)
     pause_menu->title.label    = texture_create_text("---paused---", pause_menu->title.font, pause_menu->title.color, 5, 5);
     pause_menu->title.position = vector_create(texture_get_screen_center_x(pause_menu->title.label), texture_get_screen_center_y(pause_menu->title.label) - 40);
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < pause_menu->num_items; i++) {
         pause_menu->menu_items[i].color.r  = 0;
         pause_menu->menu_items[i].color.g  = 0;
         pause_menu->menu_items[i].color.b  = 0;
         pause_menu->menu_items[i].color.a  = 255;
         pause_menu->menu_items[i].font     = TTF_OpenFont("resources/fonts/boldpixels.ttf", 10);
-        pause_menu->menu_items[i].position = vector_create(screen_half_width + 40, screen_half_height + 20 * (i+1));
+        pause_menu->menu_items[i].position = vector_create(texture_get_screen_center_x(pause_menu->menu_items[i].label) + 40, texture_get_screen_center_y(pause_menu->menu_items[i].label) + 20 * (i+1));
         switch (i) {
             case 0:
                 pause_menu->menu_items[i].action = return_to_game;
@@ -109,19 +108,22 @@ void pause_create(PauseMenu *pause_menu)
     }
 }
 
-// TODO - create global menu_handle_events that takes in number of menu items that can be used for any type of menu
 void main_menu_handle_events(MainMenu *main_menu, SDL_Event *e)
 {
     if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
         switch (key) {
             case SDLK_w:
-                main_menu->selected_index = (main_menu->selected_index - 1) % 2;
+                if (main_menu->selected_index == 0) {
+                    main_menu->selected_index = main_menu->num_items - 1;
+                } else {
+                    main_menu->selected_index = (main_menu->selected_index - 1) % 2;
+                }
                 break;
             case SDLK_s:
                 main_menu->selected_index = (main_menu->selected_index + 1) % 2;
                 break;
-            case SDLK_RETURN:
+            case SDLK_SPACE:
                 main_menu->menu_items[main_menu->selected_index].action();
                 break;
         }
@@ -134,12 +136,16 @@ void pause_handle_events(PauseMenu *pause_menu, SDL_Event *e)
         SDL_Keycode key = e->key.keysym.sym;
         switch (key) {
             case SDLK_w:
-                pause_menu->selected_index = (pause_menu->selected_index - 1) % 3;
+                if (pause_menu->selected_index == 0) {
+                    pause_menu->selected_index = pause_menu->num_items - 1;
+                } else {
+                    pause_menu->selected_index = (pause_menu->selected_index - 1) % 2;
+                }
                 break;
             case SDLK_s:
                 pause_menu->selected_index = (pause_menu->selected_index + 1) % 3;
                 break;
-            case SDLK_RETURN:
+            case SDLK_SPACE:
                 pause_menu->menu_items[pause_menu->selected_index].action();
                 break;
         }
