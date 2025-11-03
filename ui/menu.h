@@ -158,7 +158,7 @@ void main_menu_render(MainMenu *main_menu)
     SDL_RenderClear(gamestate.renderer);
 
     texture_render(main_menu->title.label, vector_ftoi(main_menu->title.position));
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < main_menu->num_items; i++) {
         texture_render(main_menu->menu_items[i].label, vector_ftoi(main_menu->menu_items[i].position));
     }
     SDL_SetRenderDrawColor(gamestate.renderer, 0, 0, 0, 255);
@@ -173,7 +173,7 @@ void pause_render(PauseMenu *pause_menu)
     SDL_RenderClear(gamestate.renderer);
 
     texture_render(pause_menu->title.label, vector_ftoi(pause_menu->title.position));
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < pause_menu->num_items; i++) {
         texture_render(pause_menu->menu_items[i].label, vector_ftoi(pause_menu->menu_items[i].position));
     }
     SDL_SetRenderDrawColor(gamestate.renderer, 0, 0, 0, 255);
@@ -187,7 +187,7 @@ void main_menu_destroy(MainMenu *main_menu)
     TTF_CloseFont(main_menu->title.font);
     SDL_DestroyTexture(main_menu->title.label);
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < main_menu->num_items; i++) {
         TTF_CloseFont(main_menu->menu_items[i].font);
         SDL_DestroyTexture(main_menu->menu_items[i].label);
     }
@@ -198,7 +198,7 @@ void pause_destroy(PauseMenu *pause_menu)
     TTF_CloseFont(pause_menu->title.font);
     SDL_DestroyTexture(pause_menu->title.label);
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < pause_menu->num_items; i++) {
         TTF_CloseFont(pause_menu->menu_items[i].font);
         SDL_DestroyTexture(pause_menu->menu_items[i].label);
     }

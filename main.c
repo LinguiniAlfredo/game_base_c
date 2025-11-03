@@ -18,21 +18,22 @@
 #include "components/texture.h"
 #include "components/animation.h"
 #include "components/collision.h"
-#include "ui/hud.h"
-#include "ui/menu.h"
-#include "ui/ui.h"
 #include "entities/gameobject.h"
 #include "entities/player.h"
 #include "entities/pickups/coin.h"
 #include "scenes/scene.h"
 #include "input/input.h"
+#include "ui/menu.h"
+#include "ui/debug.h"
+#include "ui/hud.h"
+#include "ui/ui.h"
 
 // TODO - Implement sound
 //      - Debug mode shows arena memory layout and fps on-screen
 //      - Play game menu item should re-load Level1
 //      - Add hud items (lives, coins, etc.)
 //      - Add enemy type
-//      - Extra credit: make editor
+//      *** Editor and map loading will be game-specific, so not in this base
 
 Scene      *current_scene;
 Ui         *ui;
@@ -157,6 +158,11 @@ void update_and_render(float delta_time, float fps, int current_frame)
                 obj->render(obj);
             }
         }
+    }
+
+    if (gamestate.debug) {
+        debug_menu_update(ui->debug_menu, fps);
+        debug_menu_render(ui->debug_menu);
     }
 
     SDL_RenderPresent(gamestate.renderer);

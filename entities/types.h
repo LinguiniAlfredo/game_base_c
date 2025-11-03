@@ -3,5 +3,6 @@
 typedef enum EntityType {
     PLAYER,
     COIN,
-    BLOCK
+    BLOCK,
+    ENEMY
 } EntityType;

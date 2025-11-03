@@ -3,7 +3,7 @@
 typedef enum {
     UI,
     ENTITY
-} PartitionType;
+} Subsystem;
 
 typedef struct {
     char  *buffer;
@@ -27,7 +27,7 @@ void arena_create(Arena* arena, const size_t size)
     arena->entity_partition.offset = 0;
 }
 
-void* arena_alloc(Arena* arena, const PartitionType partition, const size_t size)
+void* arena_alloc(Arena* arena, const Subsystem partition, const size_t size)
 {
     size_t part_offset, part_size;
     char*  part_buffer;
@@ -57,7 +57,7 @@ void* arena_alloc(Arena* arena, const PartitionType partition, const size_t size
     return part_buffer + part_offset;
 }
 
-void arena_reset_part(Arena* arena, const PartitionType partition) 
+void arena_reset_part(Arena* arena, const Subsystem partition) 
 {
     switch (partition) {
         case UI:
@@ -87,6 +87,6 @@ void arena_destroy(Arena* arena)
 
 void arena_debug(Arena *arena)
 {
-
+    
 }
 

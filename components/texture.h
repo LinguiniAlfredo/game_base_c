@@ -6,12 +6,12 @@ SDL_Texture* texture_create(char *filepath)
     SDL_Surface* surface = IMG_Load(filepath);
 
     if (surface == NULL) {
-		printf("Unable to load image %s : %s\n", filepath, IMG_GetError());
+		printf("unable to load image %s : %s\n", filepath, IMG_GetError());
         return NULL;
     }
     new_texture = SDL_CreateTextureFromSurface(gamestate.renderer, surface);
     if (new_texture == NULL)
-        printf("Unable to create texture %s : %s\n", filepath, SDL_GetError());
+        printf("unable to create texture %s : %s\n", filepath, SDL_GetError());
 
     SDL_FreeSurface(surface);
     return new_texture;
@@ -22,13 +22,13 @@ SDL_Texture* texture_create_text(char *text, TTF_Font *font, SDL_Color color, in
     SDL_Texture *new_texture;
     SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
     if (surface == NULL) {
-        printf("Unable to load text %s\n", TTF_GetError());
+        printf("unable to load text %s\n", TTF_GetError());
         return NULL;
     }
 
     new_texture = SDL_CreateTextureFromSurface(gamestate.renderer, surface);
     if (new_texture == NULL) {
-        printf("Unable to create texture from text\n");
+        printf("unable to create texture from text\n");
         return NULL;
     }
 
