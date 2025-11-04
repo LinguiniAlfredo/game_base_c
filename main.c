@@ -214,7 +214,8 @@ void game_loop()
 void close_app()
 {
     ui_destroy(gamestate.ui);
-    scene_destroy(gamestate.current_scene);
+    if (gamestate.current_scene != NULL)
+        scene_destroy(gamestate.current_scene);
 
     arena_reset(&gamestate.arena);
     arena_destroy(&gamestate.arena);
