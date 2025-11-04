@@ -1,8 +1,10 @@
 #pragma once
-
+#include <SDL2/SDL.h>
 #include "../components/animation.h"
 #include "../components/collision.h"
 #include "../components/texture.h"
+#include "../utils/vector.h"
+#include "gameobject.h"
 
 typedef enum {
     DOWN,
@@ -44,7 +46,7 @@ void player_render_collision(GameObject *gameobject) {
     collision_render(&player->collision);
 }
 
-void player_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
+void player_handle_collision(GameObject *gameobject)
 {
     //Player *player = (Player *)gameobject;
     //for (int i = 0; i < MAX_GAMEOBJECTS; i++) {

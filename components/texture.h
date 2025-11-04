@@ -1,5 +1,9 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "../gamestate.h"
+#include "../utils/vector.h"
 
 SDL_Texture* texture_create(char *filepath)
 {

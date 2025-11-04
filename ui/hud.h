@@ -1,10 +1,15 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include "../components/texture.h"
+#include "../utils/vector.h"
 
 typedef struct Hud {
     TTF_Font    *font;
     SDL_Texture *texture;
     SDL_Color    color;
     Vector2f     position;
+    int          num_coins;
 } Hud;
 
 void hud_render(Hud *hud)
@@ -25,6 +30,8 @@ void hud_create(Hud *hud)
 
     hud->font        = TTF_OpenFont("resources/fonts/nes.ttf", 10);
     hud->texture     = texture_create_text("", hud->font, hud->color, 5, 5);
+
+    hud->num_coins   = 0;
 }
 
 void hud_destroy(Hud *hud)

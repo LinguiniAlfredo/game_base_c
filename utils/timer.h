@@ -1,4 +1,6 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include <stdint.h>
 
 typedef struct {
     uint64_t start_ticks;

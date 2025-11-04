@@ -1,28 +1,15 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-//#include <SDL2/SDL_mixer.h>
 
 #include <stdint.h>
-#include <limits.h>
-#include <math.h>
 
 #define ARENA_SIZE 1024
 #define MAX_GAMEOBJECTS 5
 
-#include "entities/types.h"
 #include "utils/arena.h"
 #include "utils/timer.h"
-#include "utils/vector.h"
 #include "gamestate.h"
-#include "components/texture.h"
-#include "components/animation.h"
-#include "components/collision.h"
 #include "entities/gameobject.h"
-#include "entities/player.h"
-#include "entities/pickups/coin.h"
 #include "scenes/scene.h"
-#include "input/input.h"
 #include "ui/menu.h"
 #include "ui/debug.h"
 #include "ui/hud.h"
@@ -30,7 +17,6 @@
 
 // TODO - Implement sound
 //      - Debug mode shows arena memory layout and fps on-screen
-//      - Play game menu item should re-load Level1
 //      - Add hud items (lives, coins, etc.)
 //      - Add enemy type
 //      - Clean up includes, every header should include everything it needs to compile on its own, nothing more
@@ -153,7 +139,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
         if (obj != NULL && obj->alive) {
             obj->update(obj, delta_time, current_frame);
             if (obj->components & COLLISION) {
-                obj->handle_collision(obj, gamestate.current_scene->gameobjects);
+                obj->handle_collision(obj);
             }
         }
     }

@@ -1,11 +1,12 @@
 #pragma once
 
+#include "../utils/arena.h"
 #include "../entities/gameobject.h"
 #include "../entities/player.h"
 #include "../entities/pickups/coin.h"
+#include "../gamestate.h"
 
 typedef enum Level {
-    MAINMENU,
     LEVEL1,
     LEVEL2,
     LEVEL3
@@ -20,9 +21,6 @@ void scene_create(Scene *scene, Level level)
 {
     // TODO - load levels intelligently from map file or something
     switch (level) {
-        case MAINMENU:
-            break;
-
         case LEVEL1: {
             Player *player = (Player *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Player));
             player_create(player);

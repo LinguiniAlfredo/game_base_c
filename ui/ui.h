@@ -1,4 +1,9 @@
 #pragma once
+#include "hud.h"
+#include "debug.h"
+#include "menu.h"
+#include "../gamestate.h"
+#include "../utils/arena.h"
 
 typedef struct Ui {
     Hud       *hud;

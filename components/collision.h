@@ -1,5 +1,7 @@
 #pragma once
+#include <SDL2/SDL.h>
 #include "../gamestate.h"
+#include "../utils/vector.h"
 
 typedef struct Collision {
     SDL_Rect bounds;

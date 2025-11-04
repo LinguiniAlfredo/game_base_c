@@ -1,4 +1,9 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include "../entities/gameobject.h"
+#include "../utils/vector.h"
+#include "../components/collision.h"
+#include "../components/texture.h"
 
 typedef struct Block {
     GameObject   base;
@@ -20,7 +25,6 @@ void block_create(Block *block)
     block->base.handle_collision = coin_handle_collision;
     block->base.destroy          = coin_destroy;
 
-    block->animation             = animation_create();
     block->spritesheet           = texture_create("resources/spritesheets/coin.png");
     block->collision             = collision_create(coin->base.position.x, coin->base.position.y, 8, 8);
 }

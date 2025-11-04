@@ -1,9 +1,10 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include "../gamestate.h"
 #include "../scenes/scene.h"
+#include "../utils/vector.h"
+#include "../components/texture.h"
 
 typedef struct MenuItem {
     SDL_Color    color;

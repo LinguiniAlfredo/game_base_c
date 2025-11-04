@@ -1,4 +1,10 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include "../../gamestate.h"
+#include "../../components/animation.h"
+#include "../../components/collision.h"
+#include "../../entities/gameobject.h"
+#include "../../utils/vector.h"
 
 typedef struct Coin {
     GameObject   base;
@@ -21,15 +27,16 @@ void coin_render_collision(GameObject *gameobject)
     collision_render(&coin->collision);
 }
 
-void coin_handle_collision(GameObject *gameobject, GameObject *gameobjects[])
+void coin_handle_collision(GameObject *gameobject)
 {
-    Coin *coin = (Coin *)gameobject;
-    Player *player = (Player *)gameobjects[0];
+    //Coin *coin = (Coin *)gameobject;
+    //Player *player = (Player *)gamestate.current_scene->gameobjects[0];
 
-    if (collision_detect(coin->collision.bounds, player->collision.bounds)) {
+    //if (collision_detect(coin->collision.bounds, player->collision.bounds)) {
         // TODO - play sound
-        coin->base.alive = 0;
-    }
+        //coin->base.alive = 0;
+        //gamestate.ui->hud.num_coins++;
+    //}
 }
 
 void coin_update(GameObject *gameobject, float delta_time, int current_frame)

@@ -1,4 +1,6 @@
 #pragma once
+#include "types.h"
+#include "../utils/vector.h"
 
 enum ComponentsMask {
     COLLISION  = 0x1,
@@ -21,7 +23,7 @@ typedef struct GameObject {
     void (*update)(struct GameObject*, float, int);
     void (*render)(struct GameObject*);
     void (*render_collision)(struct GameObject*);
-    void (*handle_collision)(struct GameObject*, struct GameObject *gameobjects[]);
+    void (*handle_collision)(struct GameObject*);
     void (*destroy)(struct GameObject*);
     
 } GameObject;
