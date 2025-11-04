@@ -1,4 +1,5 @@
 #pragma once
+#include "../gamestate.h"
 
 SDL_Texture* texture_create(char *filepath)
 {

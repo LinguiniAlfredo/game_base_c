@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../entities/gameobject.h"
+#include "../entities/player.h"
+#include "../entities/pickups/coin.h"
+
 typedef enum Level {
     MAINMENU,
     LEVEL1,

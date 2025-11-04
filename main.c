@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
+//#include <SDL2/SDL_mixer.h>
 
 #include <stdint.h>
 #include <limits.h>
@@ -33,11 +33,24 @@
 //      - Play game menu item should re-load Level1
 //      - Add hud items (lives, coins, etc.)
 //      - Add enemy type
+//      - Clean up includes, every header should include everything it needs to compile on its own, nothing more
 //      *** Editor and map loading will be game-specific, so not in this base
 
-Scene      *current_scene;
-Ui         *ui;
 SDL_Window *window = NULL;
+
+Gamestate gamestate = {
+    .mode                   = MENU,
+    .debug                  = 0,
+    .gameover               = 0,
+    .tile_size              = 16,
+    .screen_width           = 1920/2,
+    .screen_height          = 1080/2,
+    .internal_screen_width  = 320,
+    .internal_screen_height = 180,
+    .ticks_per_frame        = 1000.f / 60,
+    .tile_width             = 320 / 16,
+    .tile_height            = 180 / 16,
+};
 
 int initialize()
 {
@@ -100,10 +113,10 @@ void handle_events()
                     }
                     break;
                 case SDLK_1:
-                    scene_load(&current_scene, LEVEL1);
+                    scene_load(&gamestate.current_scene, LEVEL1);
                     break;
                 case SDLK_2:
-                    scene_load(&current_scene, LEVEL2);
+                    scene_load(&gamestate.current_scene, LEVEL2);
                     break;
                 case SDLK_F1:
                     toggle_debug();
@@ -115,15 +128,15 @@ void handle_events()
 
         switch (gamestate.mode) {
             case MENU:
-                main_menu_handle_events(ui->main_menu, &e);
+                main_menu_handle_events(gamestate.ui->main_menu, &e);
                 break;
             case GAME: {
-                GameObject *player = current_scene->gameobjects[0];
+                GameObject *player = gamestate.current_scene->gameobjects[0];
                 if (player != NULL)
                     player->handle_events(player, &e);
             } break;
             case PAUSED: {
-                pause_handle_events(ui->pause_menu, &e);
+                pause_handle_events(gamestate.ui->pause_menu, &e);
             } break;
             case EDIT:
                 break;
@@ -136,11 +149,11 @@ void handle_events()
 void update_and_render(float delta_time, float fps, int current_frame)
 {
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        GameObject *obj = current_scene->gameobjects[i];
+        GameObject *obj = gamestate.current_scene->gameobjects[i];
         if (obj != NULL && obj->alive) {
             obj->update(obj, delta_time, current_frame);
             if (obj->components & COLLISION) {
-                obj->handle_collision(obj, current_scene->gameobjects);
+                obj->handle_collision(obj, gamestate.current_scene->gameobjects);
             }
         }
     }
@@ -149,7 +162,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
     SDL_RenderClear(gamestate.renderer);
 
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        GameObject *obj = current_scene->gameobjects[i];
+        GameObject *obj = gamestate.current_scene->gameobjects[i];
         if (obj != NULL) {
             if (gamestate.debug && obj->components & COLLISION && obj->alive) {
                 obj->render_collision(obj);
@@ -161,8 +174,8 @@ void update_and_render(float delta_time, float fps, int current_frame)
     }
 
     if (gamestate.debug) {
-        debug_menu_update(ui->debug_menu, fps);
-        debug_menu_render(ui->debug_menu);
+        debug_menu_update(gamestate.ui->debug_menu, fps);
+        debug_menu_render(gamestate.ui->debug_menu);
     }
 
     SDL_RenderPresent(gamestate.renderer);
@@ -187,13 +200,13 @@ void game_loop()
 
         switch (gamestate.mode) {
             case MENU:
-                main_menu_render(ui->main_menu);
+                main_menu_render(gamestate.ui->main_menu);
                 break;
             case GAME:
                 update_and_render(delta_time, fps, current_frame);
                 break;
             case PAUSED:
-                pause_render(ui->pause_menu);
+                pause_render(gamestate.ui->pause_menu);
                 break;
             case EDIT:
                 break;
@@ -214,14 +227,8 @@ void game_loop()
 
 void close_app()
 {
-    ui_destroy(ui);
-
-    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        GameObject *obj = current_scene->gameobjects[i];
-        if (obj != NULL) {
-            obj->destroy(obj);
-        }
-    }
+    ui_destroy(gamestate.ui);
+    scene_destroy(gamestate.current_scene);
 
     arena_reset(&gamestate.arena);
     arena_destroy(&gamestate.arena);
@@ -242,8 +249,7 @@ int main()
 
     if (initialize() == 0) {
         // load subsystems into arena memory
-        ui_load(&ui);
-        scene_load(&current_scene, LEVEL1);
+        ui_load(&gamestate.ui);
         // sound_load(&sound);
 
         game_loop();

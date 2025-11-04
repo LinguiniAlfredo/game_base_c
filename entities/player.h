@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../components/animation.h"
+#include "../components/collision.h"
+#include "../components/texture.h"
+
 typedef enum {
     DOWN,
     UP,

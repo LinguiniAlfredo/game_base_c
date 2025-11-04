@@ -16,7 +16,7 @@ typedef struct {
     Partition entity_partition;
 } Arena;
 
-void arena_create(Arena* arena, const size_t size)
+void arena_create(Arena *arena, const size_t size)
 {
     arena->ui_partition.buffer = malloc(size);
     arena->ui_partition.size   = size / 2;

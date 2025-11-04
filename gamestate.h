@@ -1,4 +1,8 @@
 #pragma once
+#include <SDL2/SDL.h>
+
+typedef struct Scene Scene;
+typedef struct Ui    Ui;
 
 typedef enum {
     MENU,
@@ -11,6 +15,8 @@ typedef enum {
 typedef struct Gamestate {
     SDL_Renderer *renderer;
     Arena         arena;
+    Ui           *ui;
+    Scene        *current_scene;
     Gamemode      mode;
     int           debug;
     int           gameover;
@@ -25,16 +31,4 @@ typedef struct Gamestate {
 
 } Gamestate;
 
-Gamestate gamestate = {
-    .mode                   = MENU,
-    .debug                  = 0,
-    .gameover               = 0,
-    .tile_size              = 16,
-    .screen_width           = 1920/2,
-    .screen_height          = 1080/2,
-    .internal_screen_width  = 320,
-    .internal_screen_height = 180,
-    .ticks_per_frame        = 1000.f / 60,
-    .tile_width             = 320 / 16,
-    .tile_height            = 180 / 16,
-};
+extern Gamestate gamestate;

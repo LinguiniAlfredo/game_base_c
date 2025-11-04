@@ -1,4 +1,5 @@
 #pragma once
+#include "../gamestate.h"
 
 typedef struct Collision {
     SDL_Rect bounds;

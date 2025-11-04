@@ -1,4 +1,9 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include "../gamestate.h"
+#include "../scenes/scene.h"
 
 typedef struct MenuItem {
     SDL_Color    color;
@@ -24,7 +29,7 @@ typedef struct PauseMenu {
 } PauseMenu;
 
 void play_game() {
-    // scene_load(scene,)
+    scene_load(&gamestate.current_scene, LEVEL1);
     gamestate.mode = GAME;
 }
 void return_to_game() { gamestate.mode = GAME; }
