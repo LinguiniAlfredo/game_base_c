@@ -29,6 +29,7 @@ typedef struct Player {
     Action       action;
     Collision    collision;
     Vector2f     prev_position;
+    int          num_coins;
 } Player;
 
 
@@ -196,6 +197,8 @@ void player_create(Player *player)
     player->direction             = DOWN;
     player->action                = IDLE;
     player->collision             = collision_create(player->base.position, 8, 8);
+
+    player->num_coins             = 0;
 
     player_load_spritesheets(player);
 }

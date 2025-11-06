@@ -34,7 +34,7 @@ void coin_handle_collision(GameObject *gameobject)
     if (collision_detect(coin->collision.bounds, player->collision.bounds)) {
       // TODO - play sound
       coin->base.alive = 0;
-      //gamestate.ui->hud.num_coins++;
+      player->num_coins++;
     }
 }
 
@@ -55,12 +55,12 @@ void coin_destroy(GameObject *gameobject)
     SDL_DestroyTexture(coin->spritesheet);
 }
 
-void coin_create(Coin *coin)
+void coin_create(Coin *coin, Vector2f position)
 {
     coin->base.type             = COIN;
     coin->base.components       = COLLISION | TEXTURE | ANIMATION;
 
-    coin->base.position         = vector_create((gamestate.internal_screen_width / 2) + 10, (gamestate.internal_screen_height / 2) + 10);
+    coin->base.position         = position;
     coin->base.speed            = 0;
     coin->base.velocity         = vector_create_zero();
     coin->base.alive            = 1;

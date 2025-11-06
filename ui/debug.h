@@ -28,9 +28,11 @@ void debug_menu_create(DebugMenu *debug_menu)
     debug_menu->fps_data.color.g     = 0;
     debug_menu->fps_data.color.b     = 0;
     debug_menu->fps_data.color.a     = 255;
-    debug_menu->fps_data.position    = vector_create_zero();
     debug_menu->fps_data.font        = TTF_OpenFont("resources/fonts/nes.ttf", 7);
     debug_menu->fps_data.texture     = texture_create_text("FPS: 0", debug_menu->fps_data.font, debug_menu->fps_data.color, 5, 5);
+
+    Vector2f texture_size            = texture_measure(debug_menu->fps_data.texture);
+    debug_menu->fps_data.position    = vector_create(gamestate.internal_screen_width - texture_size.x / 2, 0);
 }
 
 void debug_menu_update(DebugMenu *debug_menu, float fps)
@@ -42,7 +44,10 @@ void debug_menu_update(DebugMenu *debug_menu, float fps)
     char fps_value[50];
     sprintf(fps_value, "%.2f", fps);
     strcat(fps_label, fps_value);
-    debug_menu->fps_data.texture = texture_create_text(fps_label, debug_menu->fps_data.font, debug_menu->fps_data.color, 5, 5);
+    debug_menu->fps_data.texture     = texture_create_text(fps_label, debug_menu->fps_data.font, debug_menu->fps_data.color, 5, 5);
+
+    Vector2f texture_size            = texture_measure(debug_menu->fps_data.texture);
+    debug_menu->fps_data.position    = vector_create(gamestate.internal_screen_width - texture_size.x, 0);
 }
 
 void debug_menu_destroy(DebugMenu *debug_menu)

@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-#define ARENA_SIZE 1024
-#define MAX_GAMEOBJECTS 5
+#define ARENA_SIZE 2048 // TODO - Calculate reasonable size for both these based on object size
+#define MAX_GAMEOBJECTS 50
 
 #include "utils/arena.h"
 #include "utils/timer.h"
@@ -159,6 +159,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
         }
     }
 
+    hud_update(gamestate.ui->hud, current_frame);
     hud_render(gamestate.ui->hud);
     if (gamestate.debug) {
         debug_menu_update(gamestate.ui->debug_menu, fps);
