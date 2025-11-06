@@ -3,7 +3,7 @@
 #include "../utils/arena.h"
 #include "../entities/gameobject.h"
 #include "../entities/player.h"
-#include "../entities/pickups/coin.h"
+#include "../entities/coin.h"
 #include "../gamestate.h"
 
 typedef enum Level {
@@ -13,7 +13,6 @@ typedef enum Level {
 } Level;
 
 typedef struct Scene {
-    GameObject *gameobjects[MAX_GAMEOBJECTS];
     Level       level;
 } Scene;
 
@@ -24,17 +23,17 @@ void scene_create(Scene *scene, Level level)
         case LEVEL1: {
             Player *player = (Player *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Player));
             player_create(player);
-            scene->gameobjects[0] = (GameObject *)player;
+            gamestate.gameobjects[0] = (GameObject *)player;
 
             Coin *coin = (Coin *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Coin));
             coin_create(coin);
-            scene->gameobjects[1] = (GameObject *)coin;
+            gamestate.gameobjects[1] = (GameObject *)coin;
         } break;
 
         case LEVEL2: {
             Coin *coin = (Coin *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Coin));
             coin_create(coin);
-            scene->gameobjects[0] = (GameObject *)coin;
+            gamestate.gameobjects[0] = (GameObject *)coin;
         } break;
 
         case LEVEL3:
@@ -48,8 +47,8 @@ void scene_create(Scene *scene, Level level)
 void scene_destroy(Scene *scene)
 {
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        if (scene->gameobjects[i] != NULL) {
-            scene->gameobjects[i]->destroy(scene->gameobjects[i]);
+        if (gamestate.gameobjects[i] != NULL) {
+            gamestate.gameobjects[i]->destroy(gamestate.gameobjects[i]);
         }
     }
 }

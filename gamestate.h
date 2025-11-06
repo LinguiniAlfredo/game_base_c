@@ -3,6 +3,7 @@
 
 typedef struct Scene Scene;
 typedef struct Ui    Ui;
+typedef struct GameObject GameObject;
 
 typedef enum {
     MENU,
@@ -17,6 +18,7 @@ typedef struct Gamestate {
     Arena         arena;
     Ui           *ui;
     Scene        *current_scene;
+    GameObject   *gameobjects[MAX_GAMEOBJECTS];
     Gamemode      mode;
     int           debug;
     int           gameover;

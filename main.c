@@ -117,7 +117,7 @@ void handle_events()
                 main_menu_handle_events(gamestate.ui->main_menu, &e);
                 break;
             case GAME: {
-                GameObject *player = gamestate.current_scene->gameobjects[0];
+                GameObject *player = gamestate.gameobjects[0];
                 if (player != NULL)
                     player->handle_events(player, &e);
             } break;
@@ -135,7 +135,7 @@ void handle_events()
 void update_and_render(float delta_time, float fps, int current_frame)
 {
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        GameObject *obj = gamestate.current_scene->gameobjects[i];
+        GameObject *obj = gamestate.gameobjects[i];
         if (obj != NULL && obj->alive) {
             obj->update(obj, delta_time, current_frame);
             if (obj->components & COLLISION) {
@@ -148,7 +148,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
     SDL_RenderClear(gamestate.renderer);
 
     for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-        GameObject *obj = gamestate.current_scene->gameobjects[i];
+        GameObject *obj = gamestate.gameobjects[i];
         if (obj != NULL) {
             if (gamestate.debug && obj->components & COLLISION && obj->alive) {
                 obj->render_collision(obj);
@@ -159,6 +159,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
         }
     }
 
+    hud_render(gamestate.ui->hud);
     if (gamestate.debug) {
         debug_menu_update(gamestate.ui->debug_menu, fps);
         debug_menu_render(gamestate.ui->debug_menu);

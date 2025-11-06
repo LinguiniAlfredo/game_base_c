@@ -1,10 +1,10 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include "gameobject.h"
 #include "../components/animation.h"
 #include "../components/collision.h"
 #include "../components/texture.h"
 #include "../utils/vector.h"
-#include "gameobject.h"
 
 typedef enum {
     DOWN,

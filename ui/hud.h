@@ -14,6 +14,7 @@ typedef struct Hud {
 
 void hud_render(Hud *hud)
 {
+    texture_render(hud->texture, vector_ftoi(hud->position));
 }
 
 void hud_update(Hud *hud, float fps)
@@ -22,14 +23,14 @@ void hud_update(Hud *hud, float fps)
 
 void hud_create(Hud *hud)
 {
-    hud->position    = vector_create_zero();
     hud->color.r     = 0;
     hud->color.g     = 0;
     hud->color.b     = 0;
     hud->color.a     = 255;
 
     hud->font        = TTF_OpenFont("resources/fonts/nes.ttf", 10);
-    hud->texture     = texture_create_text("", hud->font, hud->color, 5, 5);
+    hud->texture     = texture_create_text("Coins x 0", hud->font, hud->color, 5, 5);
+    hud->position    = vector_create(texture_get_screen_center_x(hud->texture), 5);
 
     hud->num_coins   = 0;
 }
