@@ -25,7 +25,7 @@ void scene_create(Scene *scene, Level level)
         case LEVEL1: {
             // load level1 map
             Player *player = (Player *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Player));
-            player_create(player);
+            player_create(player, vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2));
             gamestate.gameobjects[0] = (GameObject *)player;
 
             int center_screen_x = gamestate.internal_screen_width / 2;

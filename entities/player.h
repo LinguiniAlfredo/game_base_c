@@ -158,11 +158,7 @@ void player_destroy(GameObject *gameobject)
 
 void player_load_spritesheets(Player *player)
 {
-    // TODO - figure out how to do this in a loop
-    // for (int i = 0; i < ACTIONCOUNT; i++)
-    //      for (int j = 0; j < DIRCOUNT; j++)
-    //          etc...
-    
+    // TODO - store these elsewhere and only store an index into the array here
     player->spritesheets[0][0] = texture_create("resources/spritesheets/player_idle_front.png");
     player->spritesheets[0][1] = texture_create("resources/spritesheets/player_idle_back.png");
     player->spritesheets[0][2] = texture_create("resources/spritesheets/player_idle_left.png");
@@ -174,16 +170,16 @@ void player_load_spritesheets(Player *player)
     player->spritesheets[2][0] = texture_create("resources/spritesheets/player_sleeping_front.png");
 }
 
-void player_create(Player *player)
+void player_create(Player *player, Vector2f position)
 {
     player->base.type             = PLAYER;
     player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
-
     player->base.position         = vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2);
     player->base.velocity         = vector_create_zero();
     player->base.speed            = 100.f;
     player->base.alive            = 1;
     player->base.solid            = 1;
+
     player->base.update           = player_update;
     player->base.render           = player_render;
     player->base.render_collision = player_render_collision;
@@ -192,7 +188,6 @@ void player_create(Player *player)
     player->base.destroy          = player_destroy;
 
     player->prev_position         = vector_create_zero();
-
     player->animation             = animation_create();
     player->direction             = DOWN;
     player->action                = IDLE;

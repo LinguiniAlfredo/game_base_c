@@ -16,10 +16,10 @@
 #include "ui/ui.h"
 
 // TODO - Implement sound
-//      - Debug mode shows arena memory layout and fps on-screen
 //      - Add hud items (lives, coins, etc.)
 //      - Add enemy type
 //      - Clean up includes, every header should include everything it needs to compile on its own, nothing more
+//      - Optimize object structs to be way smaller
 //      *** Editor and map loading will be game-specific, so not in this base
 
 SDL_Window *window = NULL;
