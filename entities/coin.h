@@ -3,6 +3,7 @@
 #include "gameobject.h"
 #include "../components/animation.h"
 #include "../components/collision.h"
+#include "../components/texture.h"
 #include "../utils/vector.h"
 
 typedef struct Coin {
@@ -26,7 +27,7 @@ void coin_render_collision(GameObject *gameobject)
     collision_render(&coin->collision);
 }
 
-void coin_handle_collision(GameObject *gameobject)
+void coin_handle_collision(GameObject *gameobject, float delta_time)
 {
     Coin *coin = (Coin *)gameobject;
     Player *player = (Player *)gamestate.gameobjects[0];

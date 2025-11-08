@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#define ARENA_SIZE 2048 // TODO - Calculate reasonable size for both these based on object size
+#define ARENA_SIZE 4092 // TODO - Calculate reasonable size for both these based on object size
 #define MAX_GAMEOBJECTS 50
 
 #include "utils/arena.h"
@@ -124,6 +124,10 @@ void handle_events()
             case PAUSED: {
                 pause_handle_events(gamestate.ui->pause_menu, &e);
             } break;
+            case GAMEOVER: {
+                //gameover_handle_events(gamestate.ui->gameover, &e);
+                main_menu_handle_events(gamestate.ui->main_menu, &e);
+            } break;
             case EDIT:
                 break;
             case QUIT:
@@ -139,7 +143,7 @@ void update_and_render(float delta_time, float fps, int current_frame)
         if (obj != NULL && obj->alive) {
             obj->update(obj, delta_time, current_frame);
             if (obj->components & COLLISION) {
-                obj->handle_collision(obj);
+                obj->handle_collision(obj, delta_time);
             }
         }
     }
@@ -195,6 +199,10 @@ void game_loop()
                 break;
             case PAUSED:
                 pause_render(gamestate.ui->pause_menu);
+                break;
+            case GAMEOVER:
+                //gameover_render(gamestate.ui->gameover);
+                main_menu_render(gamestate.ui->main_menu);
                 break;
             case EDIT:
                 break;

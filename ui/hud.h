@@ -10,6 +10,7 @@ typedef struct Hud {
     TTF_Font    *font;
     SDL_Texture *text_texture;
     SDL_Texture *icon_texture;
+    SDL_Texture *heart_texture;
     SDL_Color    color;
     Vector2f     position;
     Animation    animation;
@@ -17,10 +18,18 @@ typedef struct Hud {
 
 void hud_render(Hud *hud)
 {
+    Player *player = (Player *)gamestate.gameobjects[0];
+
     texture_render_clipped(hud->icon_texture,
                            vector_ftoi(vector_create(hud->position.x - 10, hud->position.y + 1)),
                            hud->animation.stencil);
     texture_render(hud->text_texture, vector_ftoi(hud->position));
+
+    Vector2f heart_size = texture_measure(hud->heart_texture);
+    for (int i = 1; i <= player->health; i++) {
+        Vector2f heart_position = vector_create(gamestate.internal_screen_width - (heart_size.x * i) - 20, 6);
+        texture_render(hud->heart_texture, vector_ftoi(heart_position));
+    }
 }
 
 void hud_update(Hud *hud, int current_frame)
@@ -41,20 +50,22 @@ void hud_update(Hud *hud, int current_frame)
     } else {
         animation_start(&hud->animation, 8);
     }
+
 }
 
 void hud_create(Hud *hud)
 {
-    hud->color.r      = 0;
-    hud->color.g      = 0;
-    hud->color.b      = 0;
-    hud->color.a      = 255;
+    hud->color.r       = 0;
+    hud->color.g       = 0;
+    hud->color.b       = 0;
+    hud->color.a       = 255;
 
-    hud->font         = TTF_OpenFont("resources/fonts/nes.ttf", 10);
-    hud->icon_texture = texture_create("resources/spritesheets/coin.png");
-    hud->text_texture = texture_create_text("x0", hud->font, hud->color, 5, 5);
-    hud->position     = vector_create(20, 5);
-    hud->animation    = animation_create();
+    hud->font          = TTF_OpenFont("resources/fonts/nes.ttf", 10);
+    hud->heart_texture = texture_create("resources/spritesheets/heart.png");
+    hud->icon_texture  = texture_create("resources/spritesheets/coin.png");
+    hud->text_texture  = texture_create_text("x0", hud->font, hud->color, 5, 5);
+    hud->position      = vector_create(20, 5);
+    hud->animation     = animation_create();
 }
 
 void hud_destroy(Hud *hud)
@@ -62,4 +73,5 @@ void hud_destroy(Hud *hud)
     TTF_CloseFont(hud->font);
     SDL_DestroyTexture(hud->icon_texture);
     SDL_DestroyTexture(hud->text_texture);
+    SDL_DestroyTexture(hud->heart_texture);
 }

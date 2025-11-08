@@ -1,8 +1,14 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include "gameobject.h"
+#include "../components/animation.h"
+#include "../components/collision.h"
+#include "../components/texture.h"
+#include "../utils/vector.h"
 
 typedef struct Enemy {
     GameObject   base;
-    SDL_Texture *spritesheets
+    SDL_Texture *spritesheets[ACTIONCOUNT][DIRCOUNT];
     Animation    animation;
     Collision    collision;
     Action       action;
@@ -23,14 +29,30 @@ void enemy_render_collision(GameObject *gameobject)
     collision_render(&enemy->collision);
 }
 
+void enemy_handle_collision(GameObject *gameobject, float delta_time)
+{
+}
+
 void enemy_move(Enemy *enemy, float delta_time)
 {
-
 }
 
 void enemy_update(GameObject *gameobject, float delta_time, int current_frame)
 {
+    Enemy *enemy = (Enemy *)gameobject;
 
+    if (enemy->animation.playing) {
+        animation_update(&enemy->animation, current_frame);
+    }
+
+    if (enemy->action == IDLE) {
+        // start blinking every 4 seconds
+        if (current_frame % (60*4) == 0) {
+            animation_start(&enemy->animation, 4);
+        }
+    } else if (!enemy->animation.playing) {
+        animation_start(&enemy->animation, 4);
+    }
 }
 
 void enemy_destroy(GameObject *gameobject)
@@ -44,16 +66,23 @@ void enemy_destroy(GameObject *gameobject)
     }
 }
 
-void enemy_create_spritesheets(Enemy *enemy)
+void enemy_load_spritesheets(Enemy *enemy)
 {
-
+    enemy->spritesheets[0][0] = texture_create("resources/spritesheets/enemy_idle_front.png");
+    enemy->spritesheets[0][1] = texture_create("resources/spritesheets/enemy_idle_back.png");
+    enemy->spritesheets[0][2] = texture_create("resources/spritesheets/enemy_idle_left.png");
+    enemy->spritesheets[0][3] = texture_create("resources/spritesheets/enemy_idle_right.png");
+    //enemy->spritesheets[1][0] = texture_create("resources/spritesheets/enemy_walking_front.png");
+    //enemy->spritesheets[1][1] = texture_create("resources/spritesheets/enemy_walking_back.png");
+    //enemy->spritesheets[1][2] = texture_create("resources/spritesheets/enemy_walking_left.png");
+    //enemy->spritesheets[1][3] = texture_create("resources/spritesheets/enemy_walking_right.png");
 }
 
 void enemy_create(Enemy *enemy, Vector2f position)
 {
     enemy->base.type             = ENEMY;
     enemy->base.components       = COLLISION | TEXTURE | ANIMATION;
-    enemy->base.position         = vector_create()
+    enemy->base.position         = position;
     enemy->base.velocity         = vector_create_zero();
     enemy->base.speed            = 100.f;
     enemy->base.alive            = 1;

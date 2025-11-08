@@ -10,6 +10,21 @@ enum ComponentsMask {
     CONTROLLER = 0x10
 };
 
+typedef enum {
+    DOWN,
+    UP,
+    LEFT,
+    RIGHT,
+    DIRCOUNT
+} Direction;
+
+typedef enum {
+    IDLE,
+    WALKING,
+    HURT,
+    ACTIONCOUNT
+} Action;
+
 typedef struct GameObject {
     EntityType    type;
     Vector2f      position;
@@ -23,7 +38,7 @@ typedef struct GameObject {
     void (*update)(struct GameObject*, float, int);
     void (*render)(struct GameObject*);
     void (*render_collision)(struct GameObject*);
-    void (*handle_collision)(struct GameObject*);
+    void (*handle_collision)(struct GameObject*, float delta_time);
     void (*destroy)(struct GameObject*);
     
 } GameObject;

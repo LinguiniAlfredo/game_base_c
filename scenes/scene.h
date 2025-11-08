@@ -2,6 +2,7 @@
 
 #include "../utils/arena.h"
 #include "../entities/gameobject.h"
+#include "../entities/enemy.h"
 #include "../entities/player.h"
 #include "../entities/coin.h"
 #include "../gamestate.h"
@@ -28,12 +29,15 @@ void scene_create(Scene *scene, Level level)
             player_create(player, vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2));
             gamestate.gameobjects[0] = (GameObject *)player;
 
-            int center_screen_x = gamestate.internal_screen_width / 2;
+            Enemy *enemy = (Enemy *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Enemy));
+            enemy_create(enemy, vector_create(60, 60));
+            gamestate.gameobjects[1] = (GameObject *)enemy;
 
-            for (int i = 0; i < 5; i++) {
+            int center_screen_x = gamestate.internal_screen_width / 2;
+            for (int i = 2; i < 7; i++) {
                 Coin *coin = (Coin *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Coin));
-                coin_create(coin, vector_create(center_screen_x + (i * 15), 30));
-                gamestate.gameobjects[i + 1] = (GameObject *)coin;
+                coin_create(coin, vector_create(center_screen_x + (i * 15), gamestate.internal_screen_height - 30));
+                gamestate.gameobjects[i] = (GameObject *)coin;
             }
         } break;
 

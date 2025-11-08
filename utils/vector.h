@@ -68,3 +68,8 @@ float vector_angle(const Vector2f a, const Vector2f b)
 
     return acos(vector_dot(normalized_a, normalized_b));
 }
+
+Vector2f vector_negate(const Vector2f vector)
+{
+    return vector_create(vector.x * -1, vector.y * -1);
+}

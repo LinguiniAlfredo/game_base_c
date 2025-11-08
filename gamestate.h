@@ -9,6 +9,7 @@ typedef enum {
     MENU,
     GAME,
     PAUSED,
+    GAMEOVER,
     EDIT,
     QUIT
 } Gamemode;

@@ -6,20 +6,6 @@
 #include "../components/texture.h"
 #include "../utils/vector.h"
 
-typedef enum {
-    DOWN,
-    UP,
-    LEFT,
-    RIGHT,
-    DIRCOUNT
-} Direction;
-
-typedef enum {
-    IDLE,
-    WALKING,
-    SLEEPING,
-    ACTIONCOUNT
-} Action;
 
 typedef struct Player {
     GameObject   base;
@@ -30,6 +16,8 @@ typedef struct Player {
     Collision    collision;
     Vector2f     prev_position;
     int          num_coins;
+    int          hurt_frame_count;
+    int          health;
 } Player;
 
 
@@ -47,27 +35,38 @@ void player_render_collision(GameObject *gameobject) {
     collision_render(&player->collision);
 }
 
-void player_handle_collision(GameObject *gameobject)
+void player_recoil(Player *player, float delta_time)
 {
-    //Player *player = (Player *)gameobject;
-    //for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
-    //    GameObject *obj = gameobjects[i];
-    //    if (obj != NULL && obj->type != PLAYER && obj->solid && obj->components & COLLISION) {
-    //        switch (obj->type) {
-    //            case COIN: {
-    //                Coin *coin = (Coin *)obj;
-    //                if (collision_detect(player->collision.bounds, coin->collision.bounds)) {
-    //                    // TODO - play sound, increment coin count on hud
-    //                    coin->alive = 0;
-    //                }
-    //            } break;
-    //            case PLAYER:
-    //                break;
-    //            case BLOCK:
-    //                break;
-    //        }
-    //    }
-    //}
+    // TODO - instead of backwards_velocity, take cross product with enemy velocity to get deflection angle
+    Vector2f backwards_velocity = vector_negate(player->base.velocity);
+    int recoil_speed_scaling = 4;
+    player->base.position.x += backwards_velocity.x * player->base.speed * recoil_speed_scaling * delta_time;
+    player->base.position.y += backwards_velocity.y * player->base.speed * recoil_speed_scaling * delta_time;
+
+    player->collision.bounds.x = player->base.position.x;
+    player->collision.bounds.y = player->base.position.y;
+}
+
+void player_handle_collision(GameObject *gameobject, float delta_time)
+{
+    // TODO - maybe put collision handler function in collision file,
+    //        this function would take in pairs of entities and resolve collisions
+
+    Player *player = (Player *)gameobject;
+    for (int i = 0; i < MAX_GAMEOBJECTS; i++) {
+        GameObject *obj = gamestate.gameobjects[i];
+        if (obj != NULL && obj->type == ENEMY) {
+            Enemy *enemy = (Enemy *)obj;
+            if (collision_detect(enemy->collision.bounds, player->collision.bounds)) {
+                if (player->animation.playing) {
+                    animation_stop(&player->animation);
+                }
+                player->action = HURT;
+                animation_start(&player->animation, 4);
+                player->health--;
+            }
+        }
+    }
 }
 
 void player_move(Player *player, float delta_time)
@@ -89,7 +88,25 @@ void player_update(GameObject *gameobject, float delta_time, int current_frame)
 {
     Player *player = (Player *)gameobject;
 
-    player_move(player, delta_time);
+
+    if (player->action == HURT) {
+        if (player->hurt_frame_count < 5) {
+            player_recoil(player, delta_time);
+        } else if (player->hurt_frame_count > 5) {
+            if (player->health == 0) {
+                // TODO - death animation
+                player->base.alive = 0;
+                gamestate.mode = MENU; // TODO - gameover screen
+            }
+            player->action = IDLE;
+            player->hurt_frame_count = 0;
+            player->base.velocity = vector_create_zero();
+        }
+        player->hurt_frame_count++;
+    } else {
+        player_move(player, delta_time);
+    }
+
 
     if (player->animation.playing) {
         animation_update(&player->animation, current_frame);
@@ -109,40 +126,42 @@ void player_handle_events(GameObject *gameobject, SDL_Event *e)
 {
     Player *player = (Player *)gameobject;
 
-    if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
-        SDL_Keycode key = e->key.keysym.sym;
-        if (key == SDLK_a) {
-            player->direction = LEFT;
-            player->base.velocity.x = -1.f;
+    if (player->action != HURT) {
+        if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
+            SDL_Keycode key = e->key.keysym.sym;
+            if (key == SDLK_a) {
+                player->direction = LEFT;
+                player->base.velocity.x = -1.f;
+            }
+            if (key == SDLK_d) {
+                player->direction = RIGHT;
+                player->base.velocity.x = 1.f;
+            }
+            if (key == SDLK_w) {
+                player->direction = UP;
+                player->base.velocity.y = -1.f;
+            }
+            if (key == SDLK_s) {
+                player->direction = DOWN;
+                player->base.velocity.y = 1.f;
+            }
         }
-        if (key == SDLK_d) {
-            player->direction = RIGHT;
-            player->base.velocity.x = 1.f;
+        if (e->type == SDL_KEYUP && e->key.repeat == 0) {
+            SDL_Keycode key = e->key.keysym.sym;
+            if (key == SDLK_a || key == SDLK_d) {
+                player->base.velocity.x = 0;
+            }
+            if (key == SDLK_w || key == SDLK_s) {
+                player->base.velocity.y = 0;
+            }
         }
-        if (key == SDLK_w) {
-            player->direction = UP;
-            player->base.velocity.y = -1.f;
-        }
-        if (key == SDLK_s) {
-            player->direction = DOWN;
-            player->base.velocity.y = 1.f;
-        }
-    }
-    if (e->type == SDL_KEYUP && e->key.repeat == 0) {
-        SDL_Keycode key = e->key.keysym.sym;
-        if (key == SDLK_a || key == SDLK_d) {
-            player->base.velocity.x = 0;
-        }
-        if (key == SDLK_w || key == SDLK_s) {
-            player->base.velocity.y = 0;
+        if (player->base.velocity.x == 0 && player->base.velocity.y == 0) {
+            player->action = IDLE;
+        } else {
+            player->action = WALKING;
         }
     }
 
-    if (player->base.velocity.x == 0 && player->base.velocity.y == 0) {
-        player->action = IDLE;
-    } else {
-        player->action = WALKING;
-    }
 }
 
 void player_destroy(GameObject *gameobject)
@@ -167,14 +186,17 @@ void player_load_spritesheets(Player *player)
     player->spritesheets[1][1] = texture_create("resources/spritesheets/player_walking_back.png");
     player->spritesheets[1][2] = texture_create("resources/spritesheets/player_walking_left.png");
     player->spritesheets[1][3] = texture_create("resources/spritesheets/player_walking_right.png");
-    player->spritesheets[2][0] = texture_create("resources/spritesheets/player_sleeping_front.png");
+    player->spritesheets[2][0] = texture_create("resources/spritesheets/player_hurt.png");
+    player->spritesheets[2][1] = texture_create("resources/spritesheets/player_hurt.png");
+    player->spritesheets[2][2] = texture_create("resources/spritesheets/player_hurt.png");
+    player->spritesheets[2][3] = texture_create("resources/spritesheets/player_hurt.png");
 }
 
 void player_create(Player *player, Vector2f position)
 {
     player->base.type             = PLAYER;
     player->base.components       = COLLISION | TEXTURE | ANIMATION | CONTROLLER;
-    player->base.position         = vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2);
+    player->base.position         = position;
     player->base.velocity         = vector_create_zero();
     player->base.speed            = 100.f;
     player->base.alive            = 1;
@@ -194,6 +216,8 @@ void player_create(Player *player, Vector2f position)
     player->collision             = collision_create(player->base.position, 8, 8);
 
     player->num_coins             = 0;
+    player->hurt_frame_count      = 0;
+    player->health                = 3;
 
     player_load_spritesheets(player);
 }
