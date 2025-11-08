@@ -1,9 +1,8 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <stdint.h>
-
-#define ARENA_SIZE 4092 // TODO - Calculate reasonable size for both these based on object size
-#define MAX_GAMEOBJECTS 50
 
 #include "utils/arena.h"
 #include "utils/timer.h"
@@ -14,10 +13,9 @@
 #include "ui/debug.h"
 #include "ui/hud.h"
 #include "ui/ui.h"
+#include "sound/sound.h"
 
 // TODO - Implement sound
-//      - Add hud items (lives, coins, etc.)
-//      - Add enemy type
 //      - Clean up includes, every header should include everything it needs to compile on its own, nothing more
 //      - Optimize object structs to be way smaller
 //      *** Editor and map loading will be game-specific, so not in this base
@@ -40,7 +38,7 @@ Gamestate gamestate = {
 
 int initialize()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -69,6 +67,9 @@ int initialize()
     if (TTF_Init() == -1) {
         printf("SDL_TTF failed to initialize: %s\n", TTF_GetError());
     }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        printf("SDL_mixer failed to initialize: %s\n", Mix_GetError());
+    }
 
     return 0;
 }
@@ -76,6 +77,7 @@ int initialize()
 void toggle_debug() { gamestate.debug = !gamestate.debug; }
 
 void toggle_paused() { 
+    sound_start(SOUND_PAUSE);
     if (gamestate.mode != PAUSED) {
         gamestate.mode = PAUSED;
     } else {
@@ -224,6 +226,8 @@ void game_loop()
 void close_app()
 {
     ui_destroy(gamestate.ui);
+    sound_destroy();
+
     if (gamestate.current_scene != NULL)
         scene_destroy(gamestate.current_scene);
 
@@ -237,6 +241,7 @@ void close_app()
 
     TTF_Quit();
     IMG_Quit();
+    Mix_Quit();
     SDL_Quit();
 }
 
@@ -245,9 +250,8 @@ int main()
     arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-        // load subsystems into arena memory
         ui_load(&gamestate.ui);
-        // sound_load(&sound);
+        sound_load();
 
         game_loop();
     }

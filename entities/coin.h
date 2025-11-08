@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include "gameobject.h"
 #include "../components/animation.h"
 #include "../components/collision.h"
@@ -33,9 +34,9 @@ void coin_handle_collision(GameObject *gameobject, float delta_time)
     Player *player = (Player *)gamestate.gameobjects[0];
 
     if (collision_detect(coin->collision.bounds, player->collision.bounds)) {
-      // TODO - play sound
-      coin->base.alive = 0;
-      player->num_coins++;
+        sound_start(SOUND_COIN);
+        coin->base.alive = 0;
+        player->num_coins++;
     }
 }
 

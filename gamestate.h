@@ -1,6 +1,9 @@
 #pragma once
 #include <SDL2/SDL.h>
 
+#define MAX_GAMEOBJECTS 50
+#define MAX_SOUNDS 4
+
 typedef struct Scene Scene;
 typedef struct Ui    Ui;
 typedef struct GameObject GameObject;
@@ -18,6 +21,7 @@ typedef struct Gamestate {
     SDL_Renderer *renderer;
     Arena         arena;
     Ui           *ui;
+    Mix_Chunk    *sounds[MAX_SOUNDS];
     Scene        *current_scene;
     GameObject   *gameobjects[MAX_GAMEOBJECTS];
     Gamemode      mode;

@@ -5,6 +5,7 @@
 #include "../components/collision.h"
 #include "../components/texture.h"
 #include "../utils/vector.h"
+#include "../sound/sound.h"
 
 
 typedef struct Player {
@@ -37,8 +38,6 @@ void player_render_collision(GameObject *gameobject) {
 
 void player_recoil(Player *player, float delta_time)
 {
-    // TODO - instead of backwards_velocity, take cross product with enemy velocity to get deflection angle
-    
     Vector2f backwards_velocity;
     if (player->base.velocity.x == 0 && player->base.velocity.y == 0) {
         backwards_velocity = vector_negate(vector_from_direction(player->direction));
@@ -68,6 +67,7 @@ void player_handle_collision(GameObject *gameobject, float delta_time)
                     animation_stop(&player->animation);
                 }
                 player->action = HURT;
+                sound_start(SOUND_HURT);
                 animation_start(&player->animation, 4);
                 player->health--;
             }

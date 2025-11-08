@@ -118,6 +118,7 @@ void main_menu_handle_events(MainMenu *main_menu, SDL_Event *e)
 {
     if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
+        sound_start(SOUND_SELECT);
         switch (key) {
             case SDLK_w:
                 if (main_menu->selected_index == 0) {
@@ -140,6 +141,7 @@ void pause_handle_events(PauseMenu *pause_menu, SDL_Event *e)
 {
     if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
+        sound_start(SOUND_SELECT);
         switch (key) {
             case SDLK_w:
                 if (pause_menu->selected_index == 0) {

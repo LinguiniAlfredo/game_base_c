@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#define ARENA_SIZE 4092
+
 typedef enum {
     UI,
     ENTITY

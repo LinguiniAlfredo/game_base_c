@@ -3,7 +3,7 @@ OBJS = main.c
 
 CC = gcc
 OPTIONS = -Wall -g -pedantic
-LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf  -lm
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm
 EXE = game
 
 all : $(OBJS)
