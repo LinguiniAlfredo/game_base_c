@@ -33,8 +33,8 @@ void arena_create(Arena *arena, const size_t size)
 
 void* arena_alloc(Arena* arena, const Subsystem partition, const size_t size)
 {
-    size_t part_offset, part_size;
-    char*  part_buffer;
+    size_t part_offset = 0, part_size = 0;
+    char*  part_buffer = NULL;
 
     switch (partition) {
         case UI: {

@@ -245,7 +245,7 @@ void close_app()
     SDL_Quit();
 }
 
-int main()
+int main(int argc, char **argv)
 {
     arena_create(&gamestate.arena, ARENA_SIZE);
 
