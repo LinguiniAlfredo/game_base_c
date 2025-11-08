@@ -11,14 +11,6 @@ enum ComponentsMask {
 };
 
 typedef enum {
-    DOWN,
-    UP,
-    LEFT,
-    RIGHT,
-    DIRCOUNT
-} Direction;
-
-typedef enum {
     IDLE,
     WALKING,
     HURT,

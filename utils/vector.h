@@ -11,6 +11,14 @@ typedef struct {
     int y;
 } Vector2i;
 
+typedef enum {
+    DOWN,
+    UP,
+    LEFT,
+    RIGHT,
+    DIRCOUNT
+} Direction;
+
 Vector2f vector_create_zero()
 {
     Vector2f vector;
@@ -72,4 +80,19 @@ float vector_angle(const Vector2f a, const Vector2f b)
 Vector2f vector_negate(const Vector2f vector)
 {
     return vector_create(vector.x * -1, vector.y * -1);
+}
+
+Vector2f vector_from_direction(Direction direction) {
+    switch(direction) {
+        case DOWN:
+            return vector_create(0, 1);
+        case UP:
+            return vector_create(0, -1);
+        case LEFT:
+            return vector_create(-1, 0);
+        case RIGHT:
+            return vector_create(1, 0);
+        default:
+            return vector_create(0, 0);
+    }
 }

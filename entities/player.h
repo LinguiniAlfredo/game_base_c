@@ -38,7 +38,13 @@ void player_render_collision(GameObject *gameobject) {
 void player_recoil(Player *player, float delta_time)
 {
     // TODO - instead of backwards_velocity, take cross product with enemy velocity to get deflection angle
-    Vector2f backwards_velocity = vector_negate(player->base.velocity);
+    
+    Vector2f backwards_velocity;
+    if (player->base.velocity.x == 0 && player->base.velocity.y == 0) {
+        backwards_velocity = vector_negate(vector_from_direction(player->direction));
+    } else {
+        backwards_velocity = vector_negate(player->base.velocity);
+    }
     int recoil_speed_scaling = 4;
     player->base.position.x += backwards_velocity.x * player->base.speed * recoil_speed_scaling * delta_time;
     player->base.position.y += backwards_velocity.y * player->base.speed * recoil_speed_scaling * delta_time;
