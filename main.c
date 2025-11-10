@@ -66,6 +66,10 @@ int initialize()
         printf("SDL_mixer failed to initialize: %s\n", Mix_GetError());
     }
 
+    ui_load(&gamestate.ui);
+    music_load();
+    sound_load();
+
     return 0;
 }
 
@@ -246,10 +250,6 @@ int main(int argc, char **argv)
     arena_create(&gamestate.arena, ARENA_SIZE);
 
     if (initialize() == 0) {
-        ui_load(&gamestate.ui);
-        music_load();
-        sound_load();
-
         game_loop();
     }
     close_app();
