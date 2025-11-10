@@ -222,6 +222,7 @@ void close_app()
 {
     ui_destroy(gamestate.ui);
     sound_destroy();
+    music_destroy();
 
     if (gamestate.current_scene != NULL)
         scene_destroy(gamestate.current_scene);
