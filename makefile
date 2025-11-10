@@ -17,7 +17,7 @@ windows : $(OBJS)
 	$(MINGW_CC) $(RELEASE_OPTIONS) $(OBJS) $(MINGW_LINKER_FLAGS) -o $(EXE).exe
 
 clean :
-	rm -f ./game ./game.exe
+	rm -rf ./build/ ./game ./game.exe
 
 count :
 	find . -type f -not -path "./.git/*" -not -path "./resources/*" -print0 | xargs -0 wc -l

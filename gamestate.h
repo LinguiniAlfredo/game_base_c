@@ -3,6 +3,7 @@
 
 #define MAX_GAMEOBJECTS 50
 #define MAX_SOUNDS 4
+#define MAX_MUSIC 4
 
 typedef struct Scene Scene;
 typedef struct Ui    Ui;
@@ -21,6 +22,7 @@ typedef struct Gamestate {
     SDL_Renderer *renderer;
     Arena         arena;
     Ui           *ui;
+    Mix_Music    *music[MAX_MUSIC];
     Mix_Chunk    *sounds[MAX_SOUNDS];
     Scene        *current_scene;
     GameObject   *gameobjects[MAX_GAMEOBJECTS];

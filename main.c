@@ -15,11 +15,6 @@
 #include "ui/ui.h"
 #include "sound/sound.h"
 
-// TODO - Implement sound
-//      - Clean up includes, every header should include everything it needs to compile on its own, nothing more
-//      - Optimize object structs to be way smaller
-//      *** Editor and map loading will be game-specific, so not in this base
-
 SDL_Window *window = NULL;
 
 Gamestate gamestate = {
@@ -77,11 +72,10 @@ int initialize()
 void toggle_debug() { gamestate.debug = !gamestate.debug; }
 
 void toggle_paused() { 
-    sound_start(SOUND_PAUSE);
+    music_pause();
     if (gamestate.mode != PAUSED) {
+        sound_start(SOUND_PAUSE);
         gamestate.mode = PAUSED;
-    } else {
-        gamestate.mode = GAME;
     }
 }
 
@@ -194,6 +188,7 @@ void game_loop()
 
         switch (gamestate.mode) {
             case MENU:
+                music_stop();
                 main_menu_render(gamestate.ui->main_menu);
                 break;
             case GAME:
@@ -203,7 +198,7 @@ void game_loop()
                 pause_render(gamestate.ui->pause_menu);
                 break;
             case GAMEOVER:
-                //gameover_render(gamestate.ui->gameover);
+                music_stop();
                 main_menu_render(gamestate.ui->main_menu);
                 break;
             case EDIT:
@@ -251,6 +246,7 @@ int main(int argc, char **argv)
 
     if (initialize() == 0) {
         ui_load(&gamestate.ui);
+        music_load();
         sound_load();
 
         game_loop();

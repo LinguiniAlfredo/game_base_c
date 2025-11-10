@@ -24,6 +24,7 @@ void scene_create(Scene *scene, Level level)
 {
     switch (level) {
         case LEVEL1: {
+            music_start(MUSIC_LEVEL1);
             // load level1 map
             Player *player = (Player *)arena_alloc(&gamestate.arena, ENTITY, sizeof(Player));
             player_create(player, vector_create(gamestate.internal_screen_width / 2, gamestate.internal_screen_height / 2));

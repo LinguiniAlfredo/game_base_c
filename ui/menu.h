@@ -29,13 +29,25 @@ typedef struct PauseMenu {
     int      num_items;
 } PauseMenu;
 
-void play_game() {
+void play_game()
+{
     scene_load(&gamestate.current_scene, LEVEL1);
     gamestate.mode = GAME;
 }
-void return_to_game() { gamestate.mode = GAME; }
-void quit_to_main()   { gamestate.mode = MENU; }
-void exit_game()      { gamestate.mode = QUIT; }
+void return_to_game()
+{
+    music_resume();
+    gamestate.mode = GAME;
+}
+void quit_to_main()
+{
+    music_stop();
+    gamestate.mode = MENU;
+}
+void exit_game()
+{
+    gamestate.mode = QUIT;
+}
 
 void main_menu_create(MainMenu *main_menu)
 {
@@ -118,9 +130,9 @@ void main_menu_handle_events(MainMenu *main_menu, SDL_Event *e)
 {
     if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
-        sound_start(SOUND_SELECT);
         switch (key) {
             case SDLK_w:
+                sound_start(SOUND_SELECT);
                 if (main_menu->selected_index == 0) {
                     main_menu->selected_index = main_menu->num_items - 1;
                 } else {
@@ -128,6 +140,7 @@ void main_menu_handle_events(MainMenu *main_menu, SDL_Event *e)
                 }
                 break;
             case SDLK_s:
+                sound_start(SOUND_SELECT);
                 main_menu->selected_index = (main_menu->selected_index + 1) % 2;
                 break;
             case SDLK_SPACE:
@@ -141,9 +154,9 @@ void pause_handle_events(PauseMenu *pause_menu, SDL_Event *e)
 {
     if (e->type == SDL_KEYDOWN && e->key.repeat == 0) {
         SDL_Keycode key = e->key.keysym.sym;
-        sound_start(SOUND_SELECT);
         switch (key) {
             case SDLK_w:
+                sound_start(SOUND_SELECT);
                 if (pause_menu->selected_index == 0) {
                     pause_menu->selected_index = pause_menu->num_items - 1;
                 } else {
@@ -151,6 +164,7 @@ void pause_handle_events(PauseMenu *pause_menu, SDL_Event *e)
                 }
                 break;
             case SDLK_s:
+                sound_start(SOUND_SELECT);
                 pause_menu->selected_index = (pause_menu->selected_index + 1) % 3;
                 break;
             case SDLK_SPACE:

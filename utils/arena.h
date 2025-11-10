@@ -42,14 +42,14 @@ void* arena_alloc(Arena* arena, const Subsystem partition, const size_t size)
             part_size   = arena->ui_partition.size;
             part_buffer = arena->ui_partition.buffer;
             arena->ui_partition.offset += size;
-            printf("allocating from ui partition\n");
+            printf("allocating from ui partition      | %p\n", part_buffer + part_offset);
         } break;
         case ENTITY: {
             part_offset = arena->entity_partition.offset;
             part_size   = arena->entity_partition.size;
             part_buffer = arena->entity_partition.buffer;
             arena->entity_partition.offset += size;
-            printf("allocating from entity partition\n");
+            printf("allocating from entity partition  | %p\n", part_buffer + part_offset);
         } break;
     }
 
